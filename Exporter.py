@@ -18,15 +18,25 @@ SHIFT_TIMES = {
     "12hNight": {"in": "20:00", "out": "08:00"}
 }
 
+import streamlit as st
+
 def get_latest_roster(base_dir):
     rosters_dir = os.path.join(base_dir, 'Rosters')
     files = glob.glob(os.path.join(rosters_dir, 'roster_*.json'))
     if not files: return None
     return max(files, key=os.path.getmtime)
 
-def get_roster_explanation(roster_data, employee_data, weather_data):
+def get_api_key():
+    try:
+        if "GEMINI_API_KEY" in st.secrets:
+            return st.secrets["GEMINI_API_KEY"]
+    except Exception:
+        pass # Secrets not configured (local dev)
     load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '.env'))
-    api_key = os.environ.get("GEMINI_API_KEY")
+    return os.environ.get("GEMINI_API_KEY")
+
+def get_roster_explanation(roster_data, employee_data, weather_data):
+    api_key = get_api_key()
     if not api_key: return "Optimized roster following Thai Labor Laws and team isolation logic."
 
     from google import genai

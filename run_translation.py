@@ -3,10 +3,20 @@ import json
 from dotenv import load_dotenv
 from datetime import date, timedelta
 
-def run_translation():
+import streamlit as st
+
+def get_api_key():
+    try:
+        if "GEMINI_API_KEY" in st.secrets:
+            return st.secrets["GEMINI_API_KEY"]
+    except Exception:
+        pass # Secrets not configured (local dev)
     env_path = os.path.join(os.path.dirname(__file__), '.env')
     load_dotenv(dotenv_path=env_path)
-    api_key = os.environ.get('GEMINI_API_KEY')
+    return os.environ.get('GEMINI_API_KEY')
+
+def run_translation():
+    api_key = get_api_key()
 
     from google import genai
     from google.genai import types

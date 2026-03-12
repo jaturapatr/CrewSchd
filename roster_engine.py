@@ -30,7 +30,14 @@ def generate_roster(start_date=None):
         with open(os.path.join(jsons_dir, 'employee.json'), 'r') as f: employee_dict = json.load(f)
         with open(os.path.join(jsons_dir, 'company_policies.json'), 'r') as f: policies_dict = json.load(f)
         with open(os.path.join(jsons_dir, 'business_context.json'), 'r') as f: context_dict = json.load(f)
-        with open(os.path.join(jsons_dir, 'weather.json'), 'r') as f: weather_dict = json.load(f)
+        
+        weather_path = os.path.join(jsons_dir, 'weather.json')
+        if not os.path.exists(weather_path):
+            weather_dict = {"daily_overrides": []}
+            with open(weather_path, 'w') as f: json.dump(weather_dict, f, indent=2)
+        else:
+            with open(weather_path, 'r') as f: weather_dict = json.load(f)
+            
     except Exception as e:
         print(f"❌ ERROR loading data: {e}")
         return

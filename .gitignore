@@ -32,7 +32,6 @@ ENV/
 rosters/roster_*.json
 output.txt
 Perfect_Roster_View.html
-jsons/weather.json
 
 # IDEs
 .vscode/

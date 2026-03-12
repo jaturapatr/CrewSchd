@@ -38,6 +38,18 @@ def login():
             else:
                 st.error("Invalid username or password")
 
+def get_api_key():
+    # Priority 1: Streamlit Secrets (Cloud)
+    try:
+        if "GEMINI_API_KEY" in st.secrets:
+            return st.secrets["GEMINI_API_KEY"]
+    except Exception:
+        pass # Secrets not configured (local dev)
+    # Priority 2: Environment Variables (.env)
+    from dotenv import load_dotenv
+    load_dotenv()
+    return os.environ.get("GEMINI_API_KEY")
+
 # --- DASHBOARD MAIN ---
 def main():
     if "authenticated" not in st.session_state:
@@ -111,7 +123,7 @@ def main():
                     from dotenv import load_dotenv
                     load_dotenv(dotenv_path=os.path.join(base_dir, '.env'))
                     
-                    client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+                    client = genai.Client(api_key=get_api_key())
                     
                     today_str = date.today().isoformat()
                     today_name = date.today().strftime('%A')
@@ -162,14 +174,23 @@ def main():
                         st.markdown(f"**🤖 Bee-Bot:** {response.text}")
 
         if st.button("🚀 RUN MATH ENGINE", width="stretch", type="primary"):
+            log_output = st.empty()
             with st.spinner("🔢 Solving Matrix..."):
-                status = generate_roster(target_date)
-                if status == "INFEASIBLE":
-                    st.error("❌ **MATHEMATICAL PARADOX DETECTED**\n\nThe current constraints (Active Overrides + Labor Laws + Headcount) are physically impossible to solve. Please remove some Active Overrides or lower the coverage requirements and try again.")
-                else:
-                    export_perfect_roster()
-                    st.balloons()
-                    st.rerun()
+                try:
+                    status = generate_roster(target_date)
+                    if status == "INFEASIBLE":
+                        st.error("❌ **MATHEMATICAL PARADOX DETECTED**\n\nThe current constraints (Active Overrides + Labor Laws + Headcount) are physically impossible to solve. Please remove some Active Overrides or lower the coverage requirements and try again.")
+                    elif status is None:
+                        st.error("❌ **ENGINE FAILURE**\n\nThe engine returned no result. Check logs for details.")
+                    else:
+                        export_perfect_roster()
+                        st.success("✅ Roster Generated and Exported!")
+                        st.balloons()
+                        st.rerun()
+                except Exception as e:
+                    st.error(f"❌ **CRITICAL SYSTEM ERROR**\n\n{str(e)}")
+                    import traceback
+                    st.code(traceback.format_exc())
 
         st.divider()
         
