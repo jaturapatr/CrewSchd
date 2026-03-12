@@ -6,6 +6,7 @@ python-dotenv
 requests
 pydantic>=2.0.0
 tabulate
+plotly
 
 # AI Intelligence
 google-genai
