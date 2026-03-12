@@ -1,0 +1,14 @@
+# Core Application
+streamlit
+pandas
+ortools
+python-dotenv
+requests
+pydantic>=2.0.0
+tabulate
+
+# AI Intelligence
+google-genai
+
+# Development & Testing
+rich

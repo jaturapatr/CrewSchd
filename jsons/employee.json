@@ -1,0 +1,90 @@
+{
+  "company": "CrewSchd",
+  "last_updated": "2026-03-12",
+  "employees": {
+    "EMP001": {
+      "name": "Kwang",
+      "tier": "Junior",
+      "can_work_nights": true,
+      "team": "Cashier"
+    },
+    "EMP002": {
+      "name": "Mam",
+      "tier": "Junior",
+      "can_work_nights": true,
+      "team": "Cashier"
+    },
+    "EMP003": {
+      "name": "Toon",
+      "tier": "Junior",
+      "can_work_nights": true,
+      "team": "Cashier"
+    },
+    "EMP004": {
+      "name": "Dona",
+      "tier": "Junior",
+      "can_work_nights": true,
+      "team": "Service"
+    },
+    "EMP005": {
+      "name": "Sine",
+      "tier": "Junior",
+      "can_work_nights": false,
+      "team": "Service"
+    },
+    "EMP006": {
+      "name": "Fai",
+      "tier": "Junior",
+      "can_work_nights": true,
+      "team": "Service"
+    },
+    "EMP007": {
+      "name": "Nan",
+      "tier": "Junior",
+      "can_work_nights": true,
+      "team": "Service"
+    },
+    "EMP008": {
+      "name": "Joy",
+      "tier": "Junior",
+      "can_work_nights": true,
+      "team": "Service"
+    },
+    "EMP009": {
+      "name": "Jane",
+      "tier": "Junior",
+      "can_work_nights": true,
+      "team": "Service"
+    },
+    "EMP010": {
+      "name": "Ken",
+      "tier": "Junior",
+      "can_work_nights": true,
+      "team": "Service"
+    },
+    "EMP011": {
+      "name": "Max",
+      "tier": "Junior",
+      "can_work_nights": true,
+      "team": "Service"
+    },
+    "EMP012": {
+      "name": "Sun",
+      "tier": "Junior",
+      "can_work_nights": true,
+      "team": "Service"
+    },
+    "EMP013": {
+      "name": "Mod",
+      "tier": "Junior",
+      "can_work_nights": true,
+      "team": "Admin"
+    },
+    "EMP014": {
+      "name": "Boss",
+      "tier": "Junior",
+      "can_work_nights": true,
+      "team": "Admin"
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "company": "CrewSchd",
+  "optimization_targets": {
+    "skeleton_night_crew": {
+      "target_shift": "Night",
+      "ideal_headcount": 1,
+      "penalty_per_extra_person": 800
+    },
+    "maximize_weekend_firepower": {
+      "target_days": [
+        "Saturday",
+        "Sunday"
+      ],
+      "penalty_for_full_weekend_off": 500
+    },
+    "penalize_clopen_rotation": {
+      "shift_1": "Night",
+      "shift_2_next_day": "Morning",
+      "penalty_per_occurrence": 900
+    },
+    "prioritize_cheap_labor": {
+      "tier_to_penalize": "Senior",
+      "standard_days_allowed": 5,
+      "penalty_per_extra_day": 1500
+    },
+    "max_consecutive_same_shifts": {
+      "limit": 1,
+      "penalty_per_occurrence": 15000
+    },
+    "force_team_utilization": {
+      "team": "Admin",
+      "target_days": 6,
+      "penalty_per_day_under": 20000
+    }
+  }
+}

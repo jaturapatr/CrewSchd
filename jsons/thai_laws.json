@@ -1,0 +1,11 @@
+{
+  "_comment_1": "Law 1: The Daily Limit. You cannot force an employee to work two shifts in the same 24-hour period.",
+  "_comment_2": "Law 2: The Weekly Limit. The Thai LPA states standard hours are 48/week, and maximum overtime is 36 hours. Therefore, absolute maximum legally allowed is 84 hours per week.",
+  "_comment_3": "Law 3: The Rest Day Law. Thai law mandates at least 1 full day off per week (maximum 6 days of work).",
+  "jurisdiction": "Thailand_LPA",
+  "laws": {
+    "max_shifts_per_day": 1,
+    "max_total_hours_per_week": 84,
+    "max_working_days_per_week": 6
+  }
+}
