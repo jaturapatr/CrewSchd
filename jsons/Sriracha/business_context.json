@@ -1,0 +1,7 @@
+{
+  "company_name": "CrewSchd",
+  "strict_day_coverage": {
+    "Cashier": 1,
+    "Service": 1
+  }
+}

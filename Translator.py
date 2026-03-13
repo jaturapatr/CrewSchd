@@ -6,14 +6,17 @@ for Operational Overrides (Weather).
 
 import os
 import json
+import streamlit as st
 from datetime import date
 from google import genai
 from google.genai import types
 
-def translate_weather_to_json(user_input: str, api_key: str, context: dict) -> dict:
+@st.cache_data(ttl=3600, show_spinner=False)
+def translate_weather_to_json(user_input: str, api_key: str, context_json: str) -> dict:
     """
     Translates natural language requests (e.g., 'Fai is sick tomorrow') 
     into a structured 'overrides' JSON for the roster engine.
+    Uses context_json (string) to ensure Streamlit can hash the arguments for caching.
     """
     try:
         client = genai.Client(api_key=api_key)
@@ -21,6 +24,8 @@ def translate_weather_to_json(user_input: str, api_key: str, context: dict) -> d
         today = date.today()
         today_str = today.isoformat()
         today_name = today.strftime('%A')
+        
+        context = json.loads(context_json)
         
         system_instruction = f"""
         You are the 'Operations Hub' for CrewSchd. 
@@ -34,7 +39,7 @@ def translate_weather_to_json(user_input: str, api_key: str, context: dict) -> d
 
         YOUR PROTOCOL:
         1. Calculate relative dates (tomorrow, next Monday) based on TODAY.
-        2. Identify employees by Name (from the Employees context).
+        2. Identify employees by their unique ID (e.g., EMP001) from the Employees context.
         3. If the request is a scheduling change, return ONLY a JSON object with an 'overrides' key.
         4. If it's a question, answer concisely.
 
@@ -43,7 +48,7 @@ def translate_weather_to_json(user_input: str, api_key: str, context: dict) -> d
           "overrides": [
             {{
               "type": "block_employee_availability", 
-              "employee": "Name", 
+              "employee": "EMP001", 
               "date": "YYYY-MM-DD", 
               "reason": "Sick/Vacation"
             }}

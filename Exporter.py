@@ -28,13 +28,15 @@ def get_latest_roster(base_dir, branch="Main Office", team="Cashier"):
     return max(files, key=os.path.getmtime)
 
 def get_api_key():
+    # Try Streamlit Secrets first (Cloud)
     try:
         if "GEMINI_API_KEY" in st.secrets:
             return st.secrets["GEMINI_API_KEY"]
     except Exception:
-        pass # Secrets not configured (local dev)
+        pass
+    # Fallback to Environment Variables (Local)
     load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '.env'))
-    return os.environ.get("GEMINI_API_KEY")
+    return os.getenv("GEMINI_API_KEY")
 
 def get_roster_explanation(roster_data, employee_data, weather_data):
     api_key = get_api_key()
@@ -163,7 +165,7 @@ def export_perfect_roster(branch="Main Office", team="Cashier"):
                 <thead>
                     <tr>
                         <th style="width: 220px">Staff Member</th>
-                        {"".join([f"<th>{date.fromisoformat(d).strftime('%a %d %b')}</th>" for d in sorted_dates])}
+                        {"".join([f"<th>{date.fromisoformat(d).strftime('%a [%d/%m/%y]')}</th>" for d in sorted_dates])}
                     </tr>
                 </thead>
                 <tbody>

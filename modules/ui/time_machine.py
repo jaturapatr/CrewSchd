@@ -4,6 +4,7 @@ import json
 import glob
 import pandas as pd
 import plotly.express as px
+from datetime import date
 
 def show_time_machine(rosters_dir, jsons_dir, weather_path, emps):
     st.title("🕰️ Roster Time Machine")
@@ -89,13 +90,13 @@ def show_time_machine(rosters_dir, jsons_dir, weather_path, emps):
         EM_MAP = {"Morning": "☀️", "Evening": "🌆", "Night": "🌑", "12hDay": "🔥", "12hNight": "🌌", "—": "💤"}
 
         with left_col:
-            st.subheader("📜 Historical Ghost")
+            st.subheader(f"📜 Historical (v_{h_meta.get('timestamp')})")
             h_data = []
             for eid, edata in emps["employees"].items():
                 row = {"Staff": edata["name"]}
                 for d in all_dates:
                     val = historical["assignments"][d].get(eid, "—")
-                    row[d] = f"{EM_MAP.get(val, val)} {val}"
+                    row[date.fromisoformat(d).strftime('%a [%d/%m/%y]')] = f"{EM_MAP.get(val, val)} {val}"
                 h_data.append(row)
             st.dataframe(pd.DataFrame(h_data), hide_index=True)
 
@@ -110,7 +111,7 @@ def show_time_machine(rosters_dir, jsons_dir, weather_path, emps):
                     display = f"{EM_MAP.get(l_val, l_val)} {l_val}"
                     if h_val != l_val:
                         display = f"🔄 {display}"
-                    row[d] = display
+                    row[date.fromisoformat(d).strftime('%a [%d/%m/%y]')] = display
                 l_data.append(row)
             
             def color_diff(val):

@@ -6,11 +6,13 @@ from datetime import date, timedelta
 import streamlit as st
 
 def get_api_key():
+    # Try Streamlit Secrets first (Cloud)
     try:
         if "GEMINI_API_KEY" in st.secrets:
             return st.secrets["GEMINI_API_KEY"]
     except Exception:
-        pass # Secrets not configured (local dev)
+        pass
+    # Fallback to Environment Variables (Local)
     env_path = os.path.join(os.path.dirname(__file__), '.env')
     load_dotenv(dotenv_path=env_path)
     return os.environ.get('GEMINI_API_KEY')

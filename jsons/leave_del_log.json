@@ -1,0 +1,32 @@
+[
+  {
+    "deleted_at": "2026-03-14T03:25:30.296383",
+    "admin": "admin",
+    "leave_detail": {
+      "type": "block_employee_availability",
+      "employee": "SRC-S02",
+      "date": "2026-03-15",
+      "reason": "Vacation"
+    }
+  },
+  {
+    "deleted_at": "2026-03-14T03:25:30.296383",
+    "admin": "admin",
+    "leave_detail": {
+      "type": "block_employee_availability",
+      "employee": "SRC-S03",
+      "date": "2026-03-16",
+      "reason": "Vacation"
+    }
+  },
+  {
+    "deleted_at": "2026-03-14T03:25:30.296383",
+    "admin": "admin",
+    "leave_detail": {
+      "type": "block_employee_availability",
+      "employee": "SRC-S05",
+      "date": "2026-03-14",
+      "reason": "Vacation"
+    }
+  }
+]

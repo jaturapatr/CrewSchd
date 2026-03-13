@@ -29,9 +29,9 @@ ENV/
 .env
 
 # Project specific
-rosters/roster_*.json
+rosters/**/roster_*.json
 output.txt
-Perfect_Roster_View.html
+Perfect_Roster_View*.html
 
 # IDEs
 .vscode/

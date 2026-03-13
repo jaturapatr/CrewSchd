@@ -1,15 +1,1 @@
-{
-  "strict_day_coverage": {
-    "Cashier": 1,
-    "Service": 2,
-    "Admin": 1
-  },
-  "operating_hours": {
-    "Admin": [
-      2,
-      3,
-      4
-    ]
-  },
-  "company_name": "K's Petrol"
-}
+{"company_name": "CrewSchd", "strict_day_coverage": {}}

@@ -34,8 +34,11 @@ def generate_roster(start_date=None, branch="Main Office", team="Cashier"):
             with open(os.path.join(jsons_dir, 'employee.json'), 'w') as f: json.dump({"employees": {}}, f)
             with open(os.path.join(jsons_dir, 'company_policies.json'), 'w') as f: json.dump({"optimization_targets": {}}, f)
 
-        # Global JSONS (Company Level)
-        with open(os.path.join(base_dir, 'jsons', 'business_context.json'), 'r') as f: context_dict = json.load(f)
+        # Branch JSONS (Branch Level)
+        branch_ctx_path = os.path.join(base_dir, 'jsons', branch, 'business_context.json')
+        if not os.path.exists(branch_ctx_path):
+            with open(branch_ctx_path, 'w') as f: json.dump({"strict_day_coverage": {}}, f)
+        with open(branch_ctx_path, 'r') as f: context_dict = json.load(f)
 
         # Local JSONS (Team Level)
         with open(os.path.join(jsons_dir, 'employee.json'), 'r') as f: employee_dict = json.load(f)
@@ -88,7 +91,7 @@ def generate_roster(start_date=None, branch="Main Office", team="Cashier"):
     apply_thai_labor_laws(model, schedule, employee_ids, days, shifts)
     
     # --- Business Logic ---
-    apply_business_context(model, schedule, days, shifts, context_dict, employee_dict)
+    context_penalties = apply_business_context(model, schedule, days, shifts, context_dict, employee_dict)
     
     # --- Dynamic AI Overrides ---
     apply_daily_weather(model, schedule, weather_dict, employee_dict, days, shifts)
@@ -97,7 +100,7 @@ def generate_roster(start_date=None, branch="Main Office", team="Cashier"):
     policy_penalty = apply_business_policies(model, schedule, days, shifts, policies_dict, employee_dict)
     
     # 5. MASTER OBJECTIVE (Minimize Penalties)
-    all_penalties = anchor_penalties + [policy_penalty]
+    all_penalties = anchor_penalties + context_penalties + [policy_penalty]
     model.Minimize(sum(all_penalties))
         
     print(f"🚀 Solving for {branch}/{team} horizon starting {start_date.isoformat()}...")
