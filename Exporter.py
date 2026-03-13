@@ -20,8 +20,9 @@ SHIFT_TIMES = {
 
 import streamlit as st
 
-def get_latest_roster(base_dir):
-    rosters_dir = os.path.join(base_dir, 'Rosters')
+def get_latest_roster(base_dir, branch="Main Office", team="Cashier"):
+    rosters_dir = os.path.join(base_dir, 'Rosters', branch, team)
+    if not os.path.exists(rosters_dir): return None
     files = glob.glob(os.path.join(rosters_dir, 'roster_*.json'))
     if not files: return None
     return max(files, key=os.path.getmtime)
@@ -56,15 +57,20 @@ def get_roster_explanation(roster_data, employee_data, weather_data):
         print(f"AI Summary Error: {e}")
         return "System optimization successfully balanced team coverage against shortages."
 
-def export_perfect_roster():
+def export_perfect_roster(branch="Main Office", team="Cashier"):
     base_dir = os.path.dirname(__file__)
-    latest_file = get_latest_roster(base_dir)
+    latest_file = get_latest_roster(base_dir, branch, team)
     if not latest_file: return
 
     with open(latest_file, 'r') as f: roster = json.load(f)
-    jsons_dir = os.path.join(base_dir, 'jsons')
+    jsons_dir = os.path.join(base_dir, 'jsons', branch, team)
     with open(os.path.join(jsons_dir, 'employee.json'), 'r') as f: employees = json.load(f)
-    with open(os.path.join(jsons_dir, 'weather.json'), 'r') as f: weather = json.load(f)
+    
+    weather_path = os.path.join(jsons_dir, 'weather.json')
+    if os.path.exists(weather_path):
+        with open(weather_path, 'r') as f: weather = json.load(f)
+    else:
+        weather = {"daily_overrides": []}
 
     strategy_summary = get_roster_explanation(roster, employees, weather)
 
@@ -90,11 +96,11 @@ def export_perfect_roster():
     # Calculate Active Headcount (Only count staff who are NOT on leave blocks this week)
     team_counts = {}
     # Initialize all teams from employee data to 0
-    for e in employees["employees"].values():
+    for e in employees.get("employees", {}).values():
         if e["team"] not in team_counts:
             team_counts[e["team"]] = 0
             
-    for eid, e_data in employees["employees"].items():
+    for eid, e_data in employees.get("employees", {}).items():
         if e_data["name"] not in leave_map:
             team_counts[e_data["team"]] += 1
 
@@ -109,7 +115,7 @@ def export_perfect_roster():
         })
 
     # Sort employees by Team then Name
-    all_emp_ids = sorted(employees["employees"].keys(), key=lambda eid: (employees["employees"][eid]["team"], employees["employees"][eid]["name"]))
+    all_emp_ids = sorted(employees.get("employees", {}).keys(), key=lambda eid: (employees["employees"][eid]["team"], employees["employees"][eid]["name"]))
 
     # 2. BUILD HTML
     html = f"""
@@ -151,7 +157,7 @@ def export_perfect_roster():
     </head>
     <body>
         <div class="paper">
-            <h1>🛠️ CrewSchd Logistics - Weekly Staff Roster</h1>
+            <h1>🛠️ CrewSchd Logistics - Weekly Staff Roster ({branch} -> {team})</h1>
 
             <table class="roster">
                 <thead>
@@ -163,14 +169,14 @@ def export_perfect_roster():
                 <tbody>
     """
 
-    current_team = None
+    current_team_header = None
     for eid in all_emp_ids:
         emp = employees["employees"][eid]
         
-        # Insert Team Header Row
-        if emp['team'] != current_team:
-            current_team = emp['team']
-            html += f"<tr class='team-row'><td colspan='{len(sorted_dates) + 1}' style='text-align: left; padding-left: 20px;'>📦 TEAM: {current_team.upper()}</td></tr>"
+        # Insert Team Header Row (even though it's one team, we keep the UI consistent)
+        if emp['team'] != current_team_header:
+            current_team_header = emp['team']
+            html += f"<tr class='team-row'><td colspan='{len(sorted_dates) + 1}' style='text-align: left; padding-left: 20px;'>📦 TEAM: {current_team_header.upper()}</td></tr>"
             
         html += f"<tr class='staff-row team-{emp['team']}'><td class='emp-name'>{emp['name']} <small style='font-weight:normal; opacity:0.6'>({eid})</small></td>"
         
@@ -214,10 +220,10 @@ def export_perfect_roster():
     </html>
     """
 
-    output_path = os.path.join(base_dir, 'Perfect_Roster_View.html')
+    output_path = os.path.join(base_dir, f'Perfect_Roster_View_{branch.replace(" ", "_")}_{team.replace(" ", "_")}.html')
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(html)
-    print(f"✨ UPDATED STAFF-CENTRIC ROSTER: Created at {output_path}")
+    print(f"✨ UPDATED STAFF-CENTRIC ROSTER for {branch}/{team}: Created at {output_path}")
 
 if __name__ == "__main__":
     export_perfect_roster()

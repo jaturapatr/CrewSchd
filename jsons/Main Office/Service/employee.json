@@ -1,0 +1,98 @@
+{
+  "company": "CrewSchd",
+  "location": "Main Office",
+  "team": "Service",
+  "employees": {
+    "EMP004": {
+      "name": "Dona",
+      "tier": "Junior",
+      "can_work_nights": true,
+      "team": "Service",
+      "vacation_quota": 13,
+      "vacation_used": 0,
+      "sick_quota": 30,
+      "sick_used": 0
+    },
+    "EMP005": {
+      "name": "Sine",
+      "tier": "Senior",
+      "can_work_nights": false,
+      "team": "Service",
+      "vacation_quota": 13,
+      "vacation_used": 0,
+      "sick_quota": 30,
+      "sick_used": 0
+    },
+    "EMP006": {
+      "name": "Fai",
+      "tier": "Junior",
+      "can_work_nights": true,
+      "team": "Service",
+      "vacation_quota": 13,
+      "vacation_used": 0,
+      "sick_quota": 30,
+      "sick_used": 0
+    },
+    "EMP007": {
+      "name": "Nan",
+      "tier": "Junior",
+      "can_work_nights": false,
+      "team": "Service",
+      "vacation_quota": 13,
+      "vacation_used": 0,
+      "sick_quota": 30,
+      "sick_used": 0
+    },
+    "EMP008": {
+      "name": "Joy",
+      "tier": "Senior",
+      "can_work_nights": false,
+      "team": "Service",
+      "vacation_quota": 13,
+      "vacation_used": 0,
+      "sick_quota": 30,
+      "sick_used": 0
+    },
+    "EMP009": {
+      "name": "Jane",
+      "tier": "Junior",
+      "can_work_nights": false,
+      "team": "Service",
+      "vacation_quota": 13,
+      "vacation_used": 0,
+      "sick_quota": 30,
+      "sick_used": 0
+    },
+    "EMP010": {
+      "name": "Ken",
+      "tier": "Junior",
+      "can_work_nights": true,
+      "team": "Service",
+      "vacation_quota": 13,
+      "vacation_used": 0,
+      "sick_quota": 30,
+      "sick_used": 0
+    },
+    "EMP011": {
+      "name": "Max",
+      "tier": "Senior",
+      "can_work_nights": true,
+      "team": "Service",
+      "vacation_quota": 13,
+      "vacation_used": 0,
+      "sick_quota": 30,
+      "sick_used": 0
+    },
+    "EMP012": {
+      "name": "Sun",
+      "tier": "Junior",
+      "can_work_nights": true,
+      "team": "Service",
+      "vacation_quota": 13,
+      "vacation_used": 0,
+      "sick_quota": 30,
+      "sick_used": 0
+    }
+  },
+  "last_updated": "2026-03-13"
+}

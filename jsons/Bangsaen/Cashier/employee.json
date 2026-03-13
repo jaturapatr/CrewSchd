@@ -1,0 +1,35 @@
+{
+  "employees": {
+    "BSN-C01": {
+      "name": "Kwang",
+      "tier": "Senior",
+      "can_work_nights": true,
+      "team": "Cashier",
+      "vacation_quota": 13,
+      "vacation_used": 0,
+      "sick_quota": 30,
+      "sick_used": 0
+    },
+    "BSN-C02": {
+      "name": "Mam",
+      "tier": "Senior",
+      "can_work_nights": true,
+      "team": "Cashier",
+      "vacation_quota": 13,
+      "vacation_used": 0,
+      "sick_quota": 30,
+      "sick_used": 0
+    },
+    "BSN-C03": {
+      "name": "Sai",
+      "tier": "Senior",
+      "can_work_nights": true,
+      "team": "Cashier",
+      "vacation_quota": 13,
+      "vacation_used": 0,
+      "sick_quota": 30,
+      "sick_used": 0
+    }
+  },
+  "last_updated": "2026-03-14"
+}

@@ -1,0 +1,95 @@
+{
+  "employees": {
+    "BSN-S01": {
+      "name": "Dona",
+      "tier": "Junior",
+      "can_work_nights": true,
+      "team": "Service",
+      "vacation_quota": 13,
+      "vacation_used": 0,
+      "sick_quota": 30,
+      "sick_used": 0
+    },
+    "BSN-S02": {
+      "name": "Noe",
+      "tier": "Junior",
+      "can_work_nights": true,
+      "team": "Service",
+      "vacation_quota": 13,
+      "vacation_used": 0,
+      "sick_quota": 30,
+      "sick_used": 0
+    },
+    "BSN-S03": {
+      "name": "Khan",
+      "tier": "Junior",
+      "can_work_nights": true,
+      "team": "Service",
+      "vacation_quota": 13,
+      "vacation_used": 0,
+      "sick_quota": 30,
+      "sick_used": 0
+    },
+    "BSN-S04": {
+      "name": "Simp",
+      "tier": "Junior",
+      "can_work_nights": true,
+      "team": "Service",
+      "vacation_quota": 13,
+      "vacation_used": 0,
+      "sick_quota": 30,
+      "sick_used": 0
+    },
+    "BSN-S05": {
+      "name": "Palm",
+      "tier": "Junior",
+      "can_work_nights": true,
+      "team": "Service",
+      "vacation_quota": 13,
+      "vacation_used": 0,
+      "sick_quota": 30,
+      "sick_used": 0
+    },
+    "BSN-S06": {
+      "name": "Don",
+      "tier": "Junior",
+      "can_work_nights": true,
+      "team": "Service",
+      "vacation_quota": 13,
+      "vacation_used": 0,
+      "sick_quota": 30,
+      "sick_used": 0
+    },
+    "BSN-S07": {
+      "name": "Joe",
+      "tier": "Junior",
+      "can_work_nights": true,
+      "team": "Service",
+      "vacation_quota": 13,
+      "vacation_used": 0,
+      "sick_quota": 30,
+      "sick_used": 0
+    },
+    "BSN-S08": {
+      "name": "Tawan",
+      "tier": "Junior",
+      "can_work_nights": true,
+      "team": "Service",
+      "vacation_quota": 13,
+      "vacation_used": 0,
+      "sick_quota": 30,
+      "sick_used": 0
+    },
+    "BSN-S09": {
+      "name": "Mod",
+      "tier": "Junior",
+      "can_work_nights": true,
+      "team": "Service",
+      "vacation_quota": 13,
+      "vacation_used": 0,
+      "sick_quota": 30,
+      "sick_used": 0
+    }
+  },
+  "last_updated": "2026-03-14"
+}

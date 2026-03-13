@@ -21,6 +21,12 @@
     {
       "type": "block_employee_availability",
       "employee": "Sine",
+      "date": "2026-03-14",
+      "reason": "accident"
+    },
+    {
+      "type": "block_employee_availability",
+      "employee": "Sine",
       "date": "2026-03-15",
       "reason": "accident"
     },

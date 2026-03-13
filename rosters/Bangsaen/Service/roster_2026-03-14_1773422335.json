@@ -1,0 +1,81 @@
+{
+  "metadata": {
+    "branch": "Bangsaen",
+    "team": "Service",
+    "generated_at": "2026-03-14",
+    "timestamp": 1773422335,
+    "start_date": "2026-03-14",
+    "status": "OPTIMAL",
+    "weather_snapshot": []
+  },
+  "assignments": {
+    "2026-03-14": {
+      "BSN-S02": "Morning",
+      "BSN-S08": "Morning",
+      "BSN-S01": "Evening",
+      "BSN-S06": "Evening",
+      "BSN-S07": "Evening",
+      "BSN-S03": "Night",
+      "BSN-S05": "Night"
+    },
+    "2026-03-15": {
+      "BSN-S05": "Morning",
+      "BSN-S07": "Morning",
+      "BSN-S01": "Evening",
+      "BSN-S02": "Evening",
+      "BSN-S03": "Evening",
+      "BSN-S04": "Evening",
+      "BSN-S08": "Evening",
+      "BSN-S06": "Night",
+      "BSN-S09": "Night"
+    },
+    "2026-03-16": {
+      "BSN-S02": "Morning",
+      "BSN-S07": "Morning",
+      "BSN-S05": "Evening",
+      "BSN-S08": "Evening",
+      "BSN-S01": "Night",
+      "BSN-S03": "Night",
+      "BSN-S04": "Night",
+      "BSN-S06": "Night",
+      "BSN-S09": "Night"
+    },
+    "2026-03-17": {
+      "BSN-S01": "Morning",
+      "BSN-S04": "Morning",
+      "BSN-S09": "Morning",
+      "BSN-S02": "Evening",
+      "BSN-S03": "Evening",
+      "BSN-S05": "Night",
+      "BSN-S06": "Night"
+    },
+    "2026-03-18": {
+      "BSN-S04": "Morning",
+      "BSN-S05": "Morning",
+      "BSN-S07": "Morning",
+      "BSN-S08": "Evening",
+      "BSN-S09": "Evening",
+      "BSN-S02": "Night",
+      "BSN-S06": "Night"
+    },
+    "2026-03-19": {
+      "BSN-S04": "Morning",
+      "BSN-S08": "Morning",
+      "BSN-S01": "Evening",
+      "BSN-S02": "Evening",
+      "BSN-S05": "Evening",
+      "BSN-S07": "Evening",
+      "BSN-S03": "Night",
+      "BSN-S09": "Night"
+    },
+    "2026-03-20": {
+      "BSN-S06": "Morning",
+      "BSN-S09": "Morning",
+      "BSN-S01": "Evening",
+      "BSN-S08": "Evening",
+      "BSN-S03": "Night",
+      "BSN-S04": "Night",
+      "BSN-S07": "Night"
+    }
+  }
+}

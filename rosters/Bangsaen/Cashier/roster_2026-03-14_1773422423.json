@@ -1,0 +1,45 @@
+{
+  "metadata": {
+    "branch": "Bangsaen",
+    "team": "Cashier",
+    "generated_at": "2026-03-14",
+    "timestamp": 1773422423,
+    "start_date": "2026-03-14",
+    "status": "OPTIMAL",
+    "weather_snapshot": []
+  },
+  "assignments": {
+    "2026-03-14": {
+      "BSN-C03": "Morning",
+      "BSN-C01": "Evening",
+      "BSN-C02": "Night"
+    },
+    "2026-03-15": {
+      "BSN-C02": "Morning",
+      "BSN-C01": "Evening",
+      "BSN-C03": "Night"
+    },
+    "2026-03-16": {
+      "BSN-C03": "Morning",
+      "BSN-C01": "Evening",
+      "BSN-C02": "Night"
+    },
+    "2026-03-17": {
+      "BSN-C01": "12hDay",
+      "BSN-C02": "12hNight"
+    },
+    "2026-03-18": {
+      "BSN-C02": "Morning",
+      "BSN-C03": "Evening",
+      "BSN-C01": "Night"
+    },
+    "2026-03-19": {
+      "BSN-C03": "12hDay",
+      "BSN-C01": "12hNight"
+    },
+    "2026-03-20": {
+      "BSN-C02": "12hDay",
+      "BSN-C03": "12hNight"
+    }
+  }
+}

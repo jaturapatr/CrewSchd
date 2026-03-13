@@ -15,7 +15,7 @@ def get_api_key():
     load_dotenv(dotenv_path=env_path)
     return os.environ.get('GEMINI_API_KEY')
 
-def run_translation():
+def run_translation(location="Main Office"):
     api_key = get_api_key()
 
     from google import genai
@@ -27,7 +27,7 @@ def run_translation():
     today_name = today.strftime('%A')
     
     system_instruction = f"""
-    You are the 'Weather Translator' for the Bee Colony scheduling system.
+    You are the 'Weather Translator' for the Bee Colony scheduling system for location [{location}].
     Today's reference date is {today.isoformat()} ({today_name}).
 
     Your job is to parse natural language requests and translate them into a strict JSON array of constraint objects.
@@ -50,7 +50,7 @@ def run_translation():
 
     prompt = "Sine is out for 2 weeks because of an accident, and Dona just called in sick today and will be out for the whole week."
     
-    print(f"Translating prompt relative to today ({today.isoformat()})...")
+    print(f"Translating prompt for {location} relative to today ({today.isoformat()})...")
     
     response = client.models.generate_content(
         model='gemini-2.5-flash',
@@ -65,11 +65,19 @@ def run_translation():
     
     final_output = {'daily_overrides': constraints}
 
-    with open(os.path.join(os.path.dirname(__file__), 'jsons', 'weather.json'), 'w') as f:
+    jsons_dir = os.path.join(os.path.dirname(__file__), 'jsons', location)
+    if not os.path.exists(jsons_dir):
+        os.makedirs(jsons_dir)
+
+    with open(os.path.join(jsons_dir, 'weather.json'), 'w') as f:
         json.dump(final_output, f, indent=2)
 
-    print('Translation saved to jsons/weather.json')
+    print(f'Translation saved to jsons/{location}/weather.json')
     print(json.dumps(final_output, indent=2))
 
 if __name__ == "__main__":
-    run_translation()
+    import sys
+    if len(sys.argv) > 1:
+        run_translation(sys.argv[1])
+    else:
+        run_translation()

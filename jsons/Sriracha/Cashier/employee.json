@@ -1,0 +1,35 @@
+{
+  "employees": {
+    "SRC-C01": {
+      "name": "Phung",
+      "tier": "Senior",
+      "can_work_nights": true,
+      "team": "Cashier",
+      "vacation_quota": 13,
+      "vacation_used": 0,
+      "sick_quota": 30,
+      "sick_used": 0
+    },
+    "SRC-C02": {
+      "name": "Tae",
+      "tier": "Senior",
+      "can_work_nights": true,
+      "team": "Cashier",
+      "vacation_quota": 13,
+      "vacation_used": 0,
+      "sick_quota": 30,
+      "sick_used": 0
+    },
+    "SRC-C03": {
+      "name": "Camp",
+      "tier": "Senior",
+      "can_work_nights": true,
+      "team": "Cashier",
+      "vacation_quota": 13,
+      "vacation_used": 0,
+      "sick_quota": 30,
+      "sick_used": 0
+    }
+  },
+  "last_updated": "2026-03-14"
+}

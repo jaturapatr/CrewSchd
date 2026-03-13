@@ -5,6 +5,11 @@
     "Admin": 1
   },
   "operating_hours": {
-    "Admin": [2, 3, 4]
-  }
+    "Admin": [
+      2,
+      3,
+      4
+    ]
+  },
+  "company_name": "K's Petrol"
 }

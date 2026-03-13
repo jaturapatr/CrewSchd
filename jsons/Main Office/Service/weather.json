@@ -1,0 +1,22 @@
+{
+  "daily_overrides": [
+    { "type": "block_employee_availability", "employee": "Sine", "date": "2026-03-12", "reason": "accident" },
+    { "type": "block_employee_availability", "employee": "Sine", "date": "2026-03-13", "reason": "accident" },
+    { "type": "block_employee_availability", "employee": "Sine", "date": "2026-03-14", "reason": "accident" },
+    { "type": "block_employee_availability", "employee": "Sine", "date": "2026-03-15", "reason": "accident" },
+    { "type": "block_employee_availability", "employee": "Sine", "date": "2026-03-16", "reason": "accident" },
+    { "type": "block_employee_availability", "employee": "Sine", "date": "2026-03-17", "reason": "accident" },
+    { "type": "block_employee_availability", "employee": "Sine", "date": "2026-03-18", "reason": "accident" },
+    { "type": "block_employee_availability", "employee": "Sine", "date": "2026-03-19", "reason": "accident" },
+    { "type": "block_employee_availability", "employee": "Sine", "date": "2026-03-20", "reason": "accident" },
+    { "type": "block_employee_availability", "employee": "Sine", "date": "2026-03-21", "reason": "accident" },
+    { "type": "block_employee_availability", "employee": "Sine", "date": "2026-03-22", "reason": "accident" },
+    { "type": "block_employee_availability", "employee": "Sine", "date": "2026-03-23", "reason": "accident" },
+    { "type": "block_employee_availability", "employee": "Sine", "date": "2026-03-24", "reason": "accident" },
+    { "type": "block_employee_availability", "employee": "Sine", "date": "2026-03-25", "reason": "accident" },
+    { "type": "block_employee_availability", "employee": "Dona", "date": "2026-03-12", "reason": "sick" },
+    { "type": "block_employee_availability", "employee": "Dona", "date": "2026-03-13", "reason": "sick" },
+    { "type": "block_employee_availability", "employee": "Dona", "date": "2026-03-14", "reason": "sick" },
+    { "type": "block_employee_availability", "employee": "Dona", "date": "2026-03-15", "reason": "sick" }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "employees": {
+    "SRC-S01": {
+      "name": "Camp",
+      "tier": "Senior",
+      "can_work_nights": true,
+      "team": "Service",
+      "vacation_quota": 13,
+      "vacation_used": 0,
+      "sick_quota": 30,
+      "sick_used": 0
+    },
+    "SRC-S02": {
+      "name": "Jek",
+      "tier": "Senior",
+      "can_work_nights": true,
+      "team": "Service",
+      "vacation_quota": 13,
+      "vacation_used": 0,
+      "sick_quota": 30,
+      "sick_used": 0
+    },
+    "SRC-S03": {
+      "name": "Duang",
+      "tier": "Senior",
+      "can_work_nights": true,
+      "team": "Service",
+      "vacation_quota": 13,
+      "vacation_used": 0,
+      "sick_quota": 30,
+      "sick_used": 0
+    },
+    "SRC-S04": {
+      "name": "Sitt",
+      "tier": "Senior",
+      "can_work_nights": true,
+      "team": "Service",
+      "vacation_quota": 13,
+      "vacation_used": 0,
+      "sick_quota": 30,
+      "sick_used": 0
+    },
+    "SRC-S05": {
+      "name": "MYO",
+      "tier": "Senior",
+      "can_work_nights": true,
+      "team": "Service",
+      "vacation_quota": 13,
+      "vacation_used": 0,
+      "sick_quota": 30,
+      "sick_used": 0
+    },
+    "SRC-S06": {
+      "name": "KOO",
+      "tier": "Senior",
+      "can_work_nights": true,
+      "team": "Service",
+      "vacation_quota": 13,
+      "vacation_used": 0,
+      "sick_quota": 30,
+      "sick_used": 0
+    }
+  },
+  "last_updated": "2026-03-13"
+}

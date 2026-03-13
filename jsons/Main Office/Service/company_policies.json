@@ -1,0 +1,10 @@
+{
+  "company": "CrewSchd",
+  "location": "Main Office",
+  "team": "Service",
+  "optimization_targets": {
+    "maximize_weekend_firepower": { "target_days": ["Saturday", "Sunday"], "penalty_for_full_weekend_off": 500 },
+    "penalize_clopen_rotation": { "shift_1": "Night", "shift_2_next_day": "Morning", "penalty_per_occurrence": 900 },
+    "max_consecutive_same_shifts": { "limit": 1, "penalty_per_occurrence": 15000 }
+  }
+}

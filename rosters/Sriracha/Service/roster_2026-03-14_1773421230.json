@@ -1,0 +1,63 @@
+{
+  "metadata": {
+    "branch": "Sriracha",
+    "team": "Service",
+    "generated_at": "2026-03-14",
+    "timestamp": 1773421230,
+    "start_date": "2026-03-14",
+    "status": "OPTIMAL",
+    "weather_snapshot": []
+  },
+  "assignments": {
+    "2026-03-14": {
+      "SRC-S05": "Morning",
+      "SRC-S06": "Morning",
+      "SRC-S01": "Evening",
+      "SRC-S02": "Evening",
+      "SRC-S03": "Night",
+      "SRC-S04": "Night"
+    },
+    "2026-03-15": {
+      "SRC-S02": "Morning",
+      "SRC-S05": "Morning",
+      "SRC-S01": "Evening",
+      "SRC-S06": "Evening",
+      "SRC-S03": "Night",
+      "SRC-S04": "Night"
+    },
+    "2026-03-16": {
+      "SRC-S03": "Morning",
+      "SRC-S04": "Morning",
+      "SRC-S01": "Evening",
+      "SRC-S06": "Evening",
+      "SRC-S02": "Night",
+      "SRC-S05": "Night"
+    },
+    "2026-03-17": {
+      "SRC-S04": "12hDay",
+      "SRC-S06": "12hDay",
+      "SRC-S01": "12hNight",
+      "SRC-S03": "12hNight"
+    },
+    "2026-03-18": {
+      "SRC-S02": "12hDay",
+      "SRC-S06": "12hDay",
+      "SRC-S03": "12hNight",
+      "SRC-S05": "12hNight"
+    },
+    "2026-03-19": {
+      "SRC-S02": "12hDay",
+      "SRC-S05": "12hDay",
+      "SRC-S01": "12hNight",
+      "SRC-S04": "12hNight"
+    },
+    "2026-03-20": {
+      "SRC-S03": "Morning",
+      "SRC-S05": "Morning",
+      "SRC-S01": "Evening",
+      "SRC-S02": "Evening",
+      "SRC-S04": "Night",
+      "SRC-S06": "Night"
+    }
+  }
+}

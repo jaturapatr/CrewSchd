@@ -95,6 +95,64 @@ def translate_weather_to_json(user_input: str, api_key: str) -> list:
         print(f"An error occurred during API communication: {e}")
         return []
 
+def translate_policy_to_json(user_input: str, api_key: str, current_policies: dict) -> dict:
+    """
+    Translates natural language policy requests into the `company_policies.json` structure.
+    """
+    try:
+        genai.configure(api_key=api_key)
+        
+        system_instruction = f"""
+        You are the 'Policy Architect' for the CrewSchd system.
+        Your job is to parse natural language requests from admins and update the `company_policies.json` structure.
+        
+        CURRENT POLICIES:
+        {json.dumps(current_policies, indent=2)}
+        
+        ALLOWED POLICY TYPES (optimization_targets keys):
+        - skeleton_night_crew: Target specific shift and headcount.
+        - maximize_weekend_firepower: Target specific days (e.g. Saturday, Sunday).
+        - penalize_clopen_rotation: Penalize specific shift sequences.
+        - prioritize_cheap_labor: Penalize specific employee tiers working over a limit.
+        - max_consecutive_same_shifts: Limit consecutive shifts of the same type.
+        - force_team_utilization: Ensure a team works a certain number of days.
+        
+        JSON SCHEMA for optimization_targets:
+        Each target should have a descriptive key (snake_case) and include:
+        - For headcount targets: target_shift, ideal_headcount, penalty_per_extra_person
+        - For day targets: target_days (list), penalty_for_full_weekend_off (or similar)
+        - For sequence targets: shift_1, shift_2_next_day, penalty_per_occurrence
+        - For labor targets: tier_to_penalize, standard_days_allowed, penalty_per_extra_day
+        - For limit targets: limit, penalty_per_occurrence
+        - For team targets: team, target_days, penalty_per_day_under
+        
+        INSTRUCTIONS:
+        1. If the user wants to update an existing policy penalty, modify the 'penalty' value.
+        2. If the user wants to create a new policy, suggest a new key and structure.
+        3. Return the COMPLETE updated `optimization_targets` object.
+        4. If the request is unclear, return the current policies with a 'message' field explaining why.
+        """
+
+        model = genai.GenerativeModel(
+            model_name="gemini-2.5-flash",
+            system_instruction=system_instruction
+        )
+        
+        config = GenerationConfig(
+            response_mime_type="application/json"
+        )
+        
+        response = model.generate_content(
+            user_input,
+            generation_config=config
+        )
+        
+        return json.loads(response.text)
+        
+    except Exception as e:
+        print(f"Policy translation error: {e}")
+        return current_policies.get("optimization_targets", {})
+
 if __name__ == "__main__":
     from dotenv import load_dotenv
     import os

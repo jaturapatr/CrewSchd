@@ -1,0 +1,212 @@
+{
+  "metadata": {
+    "location": "Main Office",
+    "generated_at": "2026-03-13",
+    "timestamp": 1773393274,
+    "start_date": "2026-03-13",
+    "status": "FEASIBLE",
+    "weather_snapshot": [
+      {
+        "type": "block_employee_availability",
+        "employee": "Sine",
+        "date": "2026-03-12",
+        "reason": "accident"
+      },
+      {
+        "type": "block_employee_availability",
+        "employee": "Sine",
+        "date": "2026-03-13",
+        "reason": "accident"
+      },
+      {
+        "type": "block_employee_availability",
+        "employee": "Sine",
+        "date": "2026-03-14",
+        "reason": "accident"
+      },
+      {
+        "type": "block_employee_availability",
+        "employee": "Sine",
+        "date": "2026-03-14",
+        "reason": "accident"
+      },
+      {
+        "type": "block_employee_availability",
+        "employee": "Sine",
+        "date": "2026-03-15",
+        "reason": "accident"
+      },
+      {
+        "type": "block_employee_availability",
+        "employee": "Sine",
+        "date": "2026-03-16",
+        "reason": "accident"
+      },
+      {
+        "type": "block_employee_availability",
+        "employee": "Sine",
+        "date": "2026-03-17",
+        "reason": "accident"
+      },
+      {
+        "type": "block_employee_availability",
+        "employee": "Sine",
+        "date": "2026-03-18",
+        "reason": "accident"
+      },
+      {
+        "type": "block_employee_availability",
+        "employee": "Sine",
+        "date": "2026-03-19",
+        "reason": "accident"
+      },
+      {
+        "type": "block_employee_availability",
+        "employee": "Sine",
+        "date": "2026-03-20",
+        "reason": "accident"
+      },
+      {
+        "type": "block_employee_availability",
+        "employee": "Sine",
+        "date": "2026-03-21",
+        "reason": "accident"
+      },
+      {
+        "type": "block_employee_availability",
+        "employee": "Sine",
+        "date": "2026-03-22",
+        "reason": "accident"
+      },
+      {
+        "type": "block_employee_availability",
+        "employee": "Sine",
+        "date": "2026-03-23",
+        "reason": "accident"
+      },
+      {
+        "type": "block_employee_availability",
+        "employee": "Sine",
+        "date": "2026-03-24",
+        "reason": "accident"
+      },
+      {
+        "type": "block_employee_availability",
+        "employee": "Sine",
+        "date": "2026-03-25",
+        "reason": "accident"
+      },
+      {
+        "type": "block_employee_availability",
+        "employee": "Dona",
+        "date": "2026-03-12",
+        "reason": "sick"
+      },
+      {
+        "type": "block_employee_availability",
+        "employee": "Dona",
+        "date": "2026-03-13",
+        "reason": "sick"
+      },
+      {
+        "type": "block_employee_availability",
+        "employee": "Dona",
+        "date": "2026-03-14",
+        "reason": "sick"
+      },
+      {
+        "type": "block_employee_availability",
+        "employee": "Dona",
+        "date": "2026-03-15",
+        "reason": "sick"
+      }
+    ]
+  },
+  "assignments": {
+    "2026-03-13": {
+      "EMP002": "Morning",
+      "EMP009": "Morning",
+      "EMP010": "Morning",
+      "EMP003": "Evening",
+      "EMP006": "Evening",
+      "EMP007": "Evening",
+      "EMP001": "Night",
+      "EMP008": "Night",
+      "EMP012": "Night",
+      "EMP014": "12hDay"
+    },
+    "2026-03-14": {
+      "EMP007": "Morning",
+      "EMP008": "Morning",
+      "EMP011": "Morning",
+      "EMP009": "Evening",
+      "EMP012": "Evening",
+      "EMP006": "Night",
+      "EMP010": "Night",
+      "EMP002": "12hDay",
+      "EMP013": "12hDay",
+      "EMP001": "12hNight"
+    },
+    "2026-03-15": {
+      "EMP010": "Morning",
+      "EMP012": "Morning",
+      "EMP007": "Evening",
+      "EMP011": "Evening",
+      "EMP008": "Night",
+      "EMP009": "Night",
+      "EMP001": "12hDay",
+      "EMP014": "12hDay",
+      "EMP003": "12hNight"
+    },
+    "2026-03-16": {
+      "EMP003": "Morning",
+      "EMP007": "Morning",
+      "EMP008": "Morning",
+      "EMP002": "Evening",
+      "EMP010": "Evening",
+      "EMP012": "Evening",
+      "EMP001": "Night",
+      "EMP004": "Night",
+      "EMP006": "Night",
+      "EMP011": "Night",
+      "EMP014": "12hDay"
+    },
+    "2026-03-17": {
+      "EMP002": "Morning",
+      "EMP004": "Morning",
+      "EMP011": "Morning",
+      "EMP001": "Evening",
+      "EMP006": "Evening",
+      "EMP008": "Evening",
+      "EMP003": "Night",
+      "EMP009": "Night",
+      "EMP010": "Night",
+      "EMP013": "12hDay"
+    },
+    "2026-03-18": {
+      "EMP003": "Morning",
+      "EMP006": "Morning",
+      "EMP008": "Morning",
+      "EMP009": "Morning",
+      "EMP002": "Evening",
+      "EMP004": "Evening",
+      "EMP012": "Evening",
+      "EMP001": "Night",
+      "EMP007": "Night",
+      "EMP011": "Night",
+      "EMP013": "12hDay"
+    },
+    "2026-03-19": {
+      "EMP004": "Morning",
+      "EMP012": "Morning",
+      "EMP006": "Evening",
+      "EMP007": "Evening",
+      "EMP011": "Evening",
+      "EMP009": "Night",
+      "EMP010": "Night",
+      "EMP002": "12hDay",
+      "EMP014": "12hDay",
+      "EMP003": "12hNight"
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "company": "CrewSchd",
+  "location": "Main Office",
+  "team": "Cashier",
+  "employees": {
+    "EMP001": { "name": "Kwang", "tier": "Junior", "can_work_nights": true, "team": "Cashier", "vacation_quota": 13, "vacation_used": 0, "sick_quota": 30, "sick_used": 0 },
+    "EMP002": { "name": "Mam", "tier": "Junior", "can_work_nights": true, "team": "Cashier", "vacation_quota": 13, "vacation_used": 0, "sick_quota": 30, "sick_used": 0 },
+    "EMP003": { "name": "Toon", "tier": "Junior", "can_work_nights": true, "team": "Cashier", "vacation_quota": 13, "vacation_used": 0, "sick_quota": 30, "sick_used": 0 }
+  }
+}

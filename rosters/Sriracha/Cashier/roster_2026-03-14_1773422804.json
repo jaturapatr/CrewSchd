@@ -1,0 +1,45 @@
+{
+  "metadata": {
+    "branch": "Sriracha",
+    "team": "Cashier",
+    "generated_at": "2026-03-14",
+    "timestamp": 1773422804,
+    "start_date": "2026-03-14",
+    "status": "OPTIMAL",
+    "weather_snapshot": []
+  },
+  "assignments": {
+    "2026-03-14": {
+      "SRC-C03": "Morning",
+      "SRC-C01": "Evening",
+      "SRC-C02": "Night"
+    },
+    "2026-03-15": {
+      "SRC-C02": "Morning",
+      "SRC-C01": "Evening",
+      "SRC-C03": "Night"
+    },
+    "2026-03-16": {
+      "SRC-C03": "Morning",
+      "SRC-C01": "Evening",
+      "SRC-C02": "Night"
+    },
+    "2026-03-17": {
+      "SRC-C01": "12hDay",
+      "SRC-C02": "12hNight"
+    },
+    "2026-03-18": {
+      "SRC-C02": "Morning",
+      "SRC-C03": "Evening",
+      "SRC-C01": "Night"
+    },
+    "2026-03-19": {
+      "SRC-C03": "12hDay",
+      "SRC-C01": "12hNight"
+    },
+    "2026-03-20": {
+      "SRC-C02": "12hDay",
+      "SRC-C03": "12hNight"
+    }
+  }
+}

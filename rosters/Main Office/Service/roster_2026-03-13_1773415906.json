@@ -1,0 +1,182 @@
+{
+  "metadata": {
+    "location": "Main Office",
+    "team": "Service",
+    "generated_at": "2026-03-13",
+    "timestamp": 1773415906,
+    "start_date": "2026-03-13",
+    "status": "OPTIMAL",
+    "weather_snapshot": [
+      {
+        "type": "block_employee_availability",
+        "employee": "Sine",
+        "date": "2026-03-12",
+        "reason": "accident"
+      },
+      {
+        "type": "block_employee_availability",
+        "employee": "Sine",
+        "date": "2026-03-13",
+        "reason": "accident"
+      },
+      {
+        "type": "block_employee_availability",
+        "employee": "Sine",
+        "date": "2026-03-14",
+        "reason": "accident"
+      },
+      {
+        "type": "block_employee_availability",
+        "employee": "Sine",
+        "date": "2026-03-15",
+        "reason": "accident"
+      },
+      {
+        "type": "block_employee_availability",
+        "employee": "Sine",
+        "date": "2026-03-16",
+        "reason": "accident"
+      },
+      {
+        "type": "block_employee_availability",
+        "employee": "Sine",
+        "date": "2026-03-17",
+        "reason": "accident"
+      },
+      {
+        "type": "block_employee_availability",
+        "employee": "Sine",
+        "date": "2026-03-18",
+        "reason": "accident"
+      },
+      {
+        "type": "block_employee_availability",
+        "employee": "Sine",
+        "date": "2026-03-19",
+        "reason": "accident"
+      },
+      {
+        "type": "block_employee_availability",
+        "employee": "Sine",
+        "date": "2026-03-20",
+        "reason": "accident"
+      },
+      {
+        "type": "block_employee_availability",
+        "employee": "Sine",
+        "date": "2026-03-21",
+        "reason": "accident"
+      },
+      {
+        "type": "block_employee_availability",
+        "employee": "Sine",
+        "date": "2026-03-22",
+        "reason": "accident"
+      },
+      {
+        "type": "block_employee_availability",
+        "employee": "Sine",
+        "date": "2026-03-23",
+        "reason": "accident"
+      },
+      {
+        "type": "block_employee_availability",
+        "employee": "Sine",
+        "date": "2026-03-24",
+        "reason": "accident"
+      },
+      {
+        "type": "block_employee_availability",
+        "employee": "Sine",
+        "date": "2026-03-25",
+        "reason": "accident"
+      },
+      {
+        "type": "block_employee_availability",
+        "employee": "Dona",
+        "date": "2026-03-12",
+        "reason": "sick"
+      },
+      {
+        "type": "block_employee_availability",
+        "employee": "Dona",
+        "date": "2026-03-13",
+        "reason": "sick"
+      },
+      {
+        "type": "block_employee_availability",
+        "employee": "Dona",
+        "date": "2026-03-14",
+        "reason": "sick"
+      },
+      {
+        "type": "block_employee_availability",
+        "employee": "Dona",
+        "date": "2026-03-15",
+        "reason": "sick"
+      }
+    ]
+  },
+  "assignments": {
+    "2026-03-13": {
+      "EMP006": "Morning",
+      "EMP007": "Morning",
+      "EMP008": "Morning",
+      "EMP009": "Morning",
+      "EMP010": "Morning",
+      "EMP011": "Morning",
+      "EMP012": "Morning"
+    },
+    "2026-03-14": {
+      "EMP007": "Evening",
+      "EMP008": "Evening",
+      "EMP012": "Evening",
+      "EMP006": "Night"
+    },
+    "2026-03-15": {
+      "EMP007": "Morning",
+      "EMP008": "Morning",
+      "EMP009": "Morning",
+      "EMP010": "Morning",
+      "EMP011": "Morning",
+      "EMP012": "Morning",
+      "EMP006": "Evening"
+    },
+    "2026-03-16": {
+      "EMP004": "Morning",
+      "EMP006": "Morning",
+      "EMP007": "Evening",
+      "EMP009": "Evening",
+      "EMP010": "Evening",
+      "EMP011": "Evening",
+      "EMP012": "Evening"
+    },
+    "2026-03-17": {
+      "EMP007": "Morning",
+      "EMP008": "Morning",
+      "EMP009": "Morning",
+      "EMP010": "Morning",
+      "EMP011": "Morning",
+      "EMP006": "Evening",
+      "EMP004": "Night"
+    },
+    "2026-03-18": {
+      "EMP006": "Morning",
+      "EMP004": "Evening",
+      "EMP008": "Evening",
+      "EMP009": "Evening",
+      "EMP010": "Evening",
+      "EMP011": "Evening",
+      "EMP012": "Evening"
+    },
+    "2026-03-19": {
+      "EMP004": "Morning",
+      "EMP007": "Morning",
+      "EMP008": "Morning",
+      "EMP009": "Morning",
+      "EMP010": "Morning",
+      "EMP011": "Morning",
+      "EMP012": "Morning"
+    }
+  }
+}

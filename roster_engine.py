@@ -19,17 +19,27 @@ from modules.context import apply_business_context
 from modules.weather import apply_daily_weather
 from modules.persistence import apply_history_constraints, apply_persistence_locks
 
-def generate_roster(start_date=None):
-    print("🛠️ Initializing CrewSchd Math Engine...")
+def generate_roster(start_date=None, branch="Main Office", team="Cashier"):
+    print(f"🛠️ Initializing CrewSchd Math Engine for [{branch} -> {team}]...")
     model = cp_model.CpModel()
     base_dir = os.path.dirname(__file__)
     
-    # 1. LOAD DATA
+    # 1. LOAD DATA (Branch & Team Specific)
     try:
-        jsons_dir = os.path.join(base_dir, 'jsons')
+        jsons_dir = os.path.join(base_dir, 'jsons', branch, team)
+        # Ensure directory exists for new branches/teams
+        if not os.path.exists(jsons_dir):
+            os.makedirs(jsons_dir)
+            # Create default empty files if they don't exist
+            with open(os.path.join(jsons_dir, 'employee.json'), 'w') as f: json.dump({"employees": {}}, f)
+            with open(os.path.join(jsons_dir, 'company_policies.json'), 'w') as f: json.dump({"optimization_targets": {}}, f)
+
+        # Global JSONS (Company Level)
+        with open(os.path.join(base_dir, 'jsons', 'business_context.json'), 'r') as f: context_dict = json.load(f)
+
+        # Local JSONS (Team Level)
         with open(os.path.join(jsons_dir, 'employee.json'), 'r') as f: employee_dict = json.load(f)
         with open(os.path.join(jsons_dir, 'company_policies.json'), 'r') as f: policies_dict = json.load(f)
-        with open(os.path.join(jsons_dir, 'business_context.json'), 'r') as f: context_dict = json.load(f)
         
         weather_path = os.path.join(jsons_dir, 'weather.json')
         if not os.path.exists(weather_path):
@@ -39,7 +49,7 @@ def generate_roster(start_date=None):
             with open(weather_path, 'r') as f: weather_dict = json.load(f)
             
     except Exception as e:
-        print(f"❌ ERROR loading data: {e}")
+        print(f"❌ ERROR loading data for {branch}/{team}: {e}")
         return
 
     # 2. SETUP HORIZON
@@ -48,8 +58,12 @@ def generate_roster(start_date=None):
     
     days = [start_date + timedelta(days=i) for i in range(7)]
     shifts = ["Morning", "Evening", "Night", "12hDay", "12hNight"]
-    employee_ids = list(employee_dict["employees"].keys())
+    employee_ids = list(employee_dict.get("employees", {}).keys())
     
+    if not employee_ids:
+        print(f"⚠️ No employees found for {branch}/{team}")
+        return "NO_EMPLOYEES"
+
     # 3. CREATE BOOLEAN GRID
     schedule = {}
     for e_id in employee_ids:
@@ -66,8 +80,9 @@ def generate_roster(start_date=None):
                 
     # 4. APPLY MODULAR CONSTRAINTS
     # --- Persistence & Stability ---
-    anchor_penalties = apply_persistence_locks(model, schedule, employee_ids, days, shifts, base_dir)
-    apply_history_constraints(model, schedule, employee_ids, start_date, shifts)
+    rosters_dir = os.path.join(base_dir, 'Rosters', branch, team)
+    anchor_penalties = apply_persistence_locks(model, schedule, employee_ids, days, shifts, rosters_dir)
+    apply_history_constraints(model, schedule, employee_ids, start_date, shifts, rosters_dir)
     
     # --- Hard Laws ---
     apply_thai_labor_laws(model, schedule, employee_ids, days, shifts)
@@ -85,7 +100,7 @@ def generate_roster(start_date=None):
     all_penalties = anchor_penalties + [policy_penalty]
     model.Minimize(sum(all_penalties))
         
-    print(f"🚀 Solving for horizon starting {start_date.isoformat()}...")
+    print(f"🚀 Solving for {branch}/{team} horizon starting {start_date.isoformat()}...")
     solver = cp_model.CpSolver()
     
     # Deterministic settings for stability
@@ -99,10 +114,12 @@ def generate_roster(start_date=None):
     if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
         import time
         timestamp = int(time.time())
-        print(f"\n✅ Roster Generated Successfully! (v_{timestamp})")
+        print(f"\n✅ Roster for {branch}/{team} Generated Successfully! (v_{timestamp})")
         
         roster_output = {
             "metadata": {
+                "branch": branch,
+                "team": team,
                 "generated_at": date.today().isoformat(),
                 "timestamp": timestamp,
                 "start_date": start_date.isoformat(),
@@ -115,19 +132,13 @@ def generate_roster(start_date=None):
         for d in days:
             d_str = d.isoformat()
             roster_output["assignments"][d_str] = {}
-            print(f"--- {d_str} ({d.strftime('%A')}) ---")
             for s in shifts:
-                workers = []
                 for e in employee_ids:
                     if solver.Value(schedule[(e, d, s)]) == 1:
-                        name = employee_dict["employees"][e]["name"]
-                        workers.append(f"{name} ({e})")
                         roster_output["assignments"][d_str][e] = s
-                print(f"  {s:<10}: {', '.join(workers) if workers else '--'}")
-            print()
             
         # Save JSON for Persistence & Exporter
-        rosters_dir = os.path.join(base_dir, 'Rosters')
+        rosters_dir = os.path.join(base_dir, 'Rosters', branch, team)
         if not os.path.exists(rosters_dir):
             os.makedirs(rosters_dir)
         
@@ -140,15 +151,20 @@ def generate_roster(start_date=None):
         return "FEASIBLE"
             
     else:
-        print("\n❌ ERROR: INFEASIBLE. The constraints created a mathematical paradox.")
+        print(f"\n❌ ERROR for {branch}/{team}: INFEASIBLE.")
         return "INFEASIBLE"
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
+    import sys
+    if len(sys.argv) > 3:
         try:
             target_date = date.fromisoformat(sys.argv[1])
-            generate_roster(target_date)
+            br = sys.argv[2]
+            tm = sys.argv[3]
+            generate_roster(target_date, br, tm)
         except ValueError:
             print("Invalid date format. Use YYYY-MM-DD.")
+    elif len(sys.argv) > 2:
+        generate_roster(date.today(), sys.argv[1], sys.argv[2])
     else:
         generate_roster()
