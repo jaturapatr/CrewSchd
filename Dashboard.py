@@ -25,9 +25,19 @@ from employee_mgmt import show_employee_mgmt
 from company_overview import show_company_overview
 
 # --- AUTHENTICATION ---
+def get_secret(key, default):
+    # Try Streamlit Secrets first (Cloud)
+    try:
+        if key in st.secrets:
+            return st.secrets[key]
+    except Exception:
+        pass
+    # Fallback to Environment Variables (Local)
+    return os.getenv(key, default)
+
 USERS = {
-    "admin": os.getenv("ADMIN_PASSWORD", "admin123"),
-    "manager": os.getenv("MANAGER_PASSWORD", "manager123")
+    "admin": get_secret("ADMIN_PASSWORD", "admin123"),
+    "manager": get_secret("MANAGER_PASSWORD", "manager123")
 }
 
 def login():

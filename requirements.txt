@@ -1,7 +1,7 @@
 # Core Application
 streamlit
 pandas
-ortools
+ortools==9.12.4544
 python-dotenv
 requests
 pydantic>=2.0.0
@@ -10,7 +10,6 @@ plotly
 
 # AI Intelligence
 google-genai
-google-generativeai
 
 # Development & Testing
 rich
