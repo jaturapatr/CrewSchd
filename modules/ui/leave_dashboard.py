@@ -88,7 +88,7 @@ def show_leave_dashboard(jsons_dir, weather_path, weather, employees):
                     if "Leave" in str(val): return 'background-color: rgba(52, 152, 219, 0.3); color: #3498db; font-weight: bold'
                     return 'color: #2ecc71; opacity: 0.5'
                 
-                st.dataframe(df_grid.style.applymap(color_leave, subset=[c for c in df_grid.columns if c != "Staff"]), 
+                st.dataframe(df_grid.style.map(color_leave, subset=[c for c in df_grid.columns if c != "Staff"]), 
                              hide_index=True, width="stretch")
             else:
                 st.info("No absences in the current view range.")

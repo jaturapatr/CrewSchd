@@ -74,12 +74,12 @@ def show_company_overview(jsons_root, base_dir):
     with c1:
         st.write("### 📊 Staff Distribution")
         fig_dist = px.bar(df, x="Branch", y="Staff Count", color="Team", title="Workforce by Branch & Team", template="plotly_dark")
-        st.plotly_chart(fig_dist, use_container_width=True)
+        st.plotly_chart(fig_dist, width="stretch")
 
     with c2:
         st.write("### 🤒 Operational Stress (Overrides)")
         fig_health = px.pie(df, values='Active Overrides', names='Branch', title="Absence Concentration", hole=0.4, template="plotly_dark")
-        st.plotly_chart(fig_health, use_container_width=True)
+        st.plotly_chart(fig_health, width="stretch")
 
     st.divider()
     st.write("### 📋 Roster Pulse Check")
@@ -88,4 +88,4 @@ def show_company_overview(jsons_root, base_dir):
         if val == "None": return 'color: #e74c3c; font-weight: bold'
         return 'color: #2ecc71'
 
-    st.dataframe(df.style.applymap(color_roster, subset=["Latest Roster"]), hide_index=True, use_container_width=True)
+    st.dataframe(df.style.map(color_roster, subset=["Latest Roster"]), hide_index=True, width="stretch")

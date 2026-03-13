@@ -1,0 +1,45 @@
+{
+  "metadata": {
+    "branch": "Main Office",
+    "team": "Cashier",
+    "generated_at": "2026-03-14",
+    "timestamp": 1773427848,
+    "start_date": "2026-03-14",
+    "status": "OPTIMAL",
+    "weather_snapshot": []
+  },
+  "assignments": {
+    "2026-03-14": {
+      "EMP003": "12hDay",
+      "EMP001": "12hNight"
+    },
+    "2026-03-15": {
+      "EMP001": "Morning",
+      "EMP003": "Evening",
+      "EMP002": "Night"
+    },
+    "2026-03-16": {
+      "EMP001": "12hDay",
+      "EMP002": "12hNight"
+    },
+    "2026-03-17": {
+      "EMP002": "Morning",
+      "EMP001": "Evening",
+      "EMP003": "Night"
+    },
+    "2026-03-18": {
+      "EMP001": "Morning",
+      "EMP003": "Evening",
+      "EMP002": "Night"
+    },
+    "2026-03-19": {
+      "EMP002": "Morning",
+      "EMP001": "Evening",
+      "EMP003": "Night"
+    },
+    "2026-03-20": {
+      "EMP003": "12hDay",
+      "EMP002": "12hNight"
+    }
+  }
+}

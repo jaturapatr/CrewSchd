@@ -20,7 +20,6 @@ from control_tower import show_control_tower
 from leave_dashboard import show_leave_dashboard
 from time_machine import show_time_machine
 from analytics import show_analytics
-from policy_architect import show_policy_architect
 from employee_mgmt import show_employee_mgmt
 from company_overview import show_company_overview
 
@@ -145,7 +144,6 @@ def main():
     nav_options = ["🚜 Control Tower", "🌴 Leave Dashboard", "🕰️ Time Machine", "📊 Resource Analytics"]
     if st.session_state["user"] == "admin":
         nav_options.append("🏢 Company Overview")
-        nav_options.append("🏗️ Policy Architect")
         nav_options.append("👥 Employee Management")
     
     menu = st.sidebar.radio("Navigation", nav_options)
@@ -177,8 +175,6 @@ def main():
         show_analytics(rosters_dir, jsons_dir, employees)
     elif menu == "🏢 Company Overview":
         show_company_overview(jsons_root, base_dir)
-    elif menu == "🏗️ Policy Architect":
-        show_policy_architect(jsons_dir, policies, get_api_key())
     elif menu == "👥 Employee Management":
         show_employee_mgmt(jsons_root, selected_branch, selected_team)
 

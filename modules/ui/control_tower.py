@@ -7,6 +7,7 @@ import glob
 from datetime import date
 from roster_engine import generate_roster
 from Exporter import export_perfect_roster
+from Translator import translate_weather_to_json
 
 def show_control_tower(target_date, rosters_dir, jsons_dir, weather_path, weather, emps_ctx, biz_ctx, get_api_key, base_dir, branch="Main Office", team="Cashier"):
     st.title(f"🚜 Control Tower: {branch} -> {team}")
@@ -33,42 +34,30 @@ def show_control_tower(target_date, rosters_dir, jsons_dir, weather_path, weathe
             
             if user_prompt:
                 st.session_state.chat_history.append({"role": "user", "content": user_prompt})
-                from google import genai
-                from google.genai import types
-                from dotenv import load_dotenv
-                load_dotenv(dotenv_path=os.path.join(base_dir, '.env'))
-                client = genai.Client(api_key=get_api_key())
-                today_str = date.today().isoformat()
-                today_name = date.today().strftime('%A')
-                sys_inst = f"""
-                You are the Bee-Colony Operations Hub. 
-                TODAY IS: {today_str} ({today_name})
-                CONTEXT:
-                - Current Roster: {current_roster}
-                - Employee Database: {emps_ctx}
-                - Business Rules: {biz_ctx}
-                YOUR PROTOCOL:
-                1. Accurate relative date calculations.
-                2. Use Name, not ID.
-                3. If feasible, return ONLY a JSON object with key 'overrides'. Label reason as 'Sick' or 'Vacation'.
-                4. Answer accurately.
-                """
-                response = client.models.generate_content(
-                    model='gemini-2.5-flash',
-                    config=types.GenerateContentConfig(system_instruction=sys_inst),
-                    contents=user_prompt
-                )
-                try:
-                    clean_text = response.text.replace('```json', '').replace('```', '').strip()
-                    res_data = json.loads(clean_text)
+                
+                # Context for the AI
+                ai_context = {
+                    "current_roster": current_roster,
+                    "employees": emps_ctx,
+                    "branch": branch,
+                    "team": team
+                }
+                
+                with st.spinner("Hub is thinking..."):
+                    res_data = translate_weather_to_json(user_prompt, get_api_key, ai_context)
+                    
                     if "overrides" in res_data:
                         weather["daily_overrides"].extend(res_data["overrides"])
                         with open(weather_path, 'w') as f: json.dump(weather, f, indent=2)
                         st.session_state.chat_history.append({"role": "assistant", "content": f"✅ Added {len(res_data['overrides'])} rules."})
                         st.rerun()
-                except (json.JSONDecodeError, AttributeError, KeyError):
-                    st.session_state.chat_history.append({"role": "assistant", "content": response.text})
-                    st.rerun()
+                    elif "error" in res_data:
+                        st.session_state.chat_history.append({"role": "assistant", "content": f"❌ Error: {res_data['error']}"})
+                        st.rerun()
+                    else:
+                        # Likely a direct text response/answer
+                        st.session_state.chat_history.append({"role": "assistant", "content": str(res_data)})
+                        st.rerun()
 
     if st.button("🚀 RUN MATH ENGINE", width="stretch", type="primary"):
         with st.spinner(f"🔢 Solving Matrix for {branch}/{team}..."):
@@ -166,7 +155,7 @@ def show_control_tower(target_date, rosters_dir, jsons_dir, weather_path, weathe
                 )
                 
                 # HTML Export Button inside All Teams tab
-                report_path = os.path.join(base_dir, 'Perfect_Roster_View.html')
+                report_path = os.path.join(base_dir, f'Perfect_Roster_View_{branch.replace(" ", "_")}_{team.replace(" ", "_")}.html')
                 if os.path.exists(report_path):
                     with open(report_path, 'r', encoding='utf-8') as f:
                         st.download_button(
@@ -177,10 +166,10 @@ def show_control_tower(target_date, rosters_dir, jsons_dir, weather_path, weathe
                             width="stretch"
                         )
 
-            for i, team in enumerate(team_names):
+            for i, team_name in enumerate(team_names):
                 with team_tabs[i+1]:
                     st.dataframe(
-                        df[df["Team"] == team][display_columns].style.map(style_cells),
+                        df[df["Team"] == team_name][display_columns].style.map(style_cells),
                         column_config={d: st.column_config.TextColumn(date.fromisoformat(d).strftime('%a %d')) for d in all_dates},
                         hide_index=True, width="stretch"
                     )
@@ -214,9 +203,9 @@ def show_control_tower(target_date, rosters_dir, jsons_dir, weather_path, weathe
                 st.write("#### 🛡️ Team Coverage Balance")
                 team_coverage = []
                 for d in all_dates:
-                    for team in team_names:
-                        count = sum(1 for eid, assigned_s in roster["assignments"][d].items() if emps["employees"][eid]["team"] == team and assigned_s != "—")
-                        team_coverage.append({"Date": d, "Team": team, "Count": count})
+                    for team_name in team_names:
+                        count = sum(1 for eid, assigned_s in roster["assignments"][d].items() if emps["employees"][eid]["team"] == team_name and assigned_s != "—")
+                        team_coverage.append({"Date": d, "Team": team_name, "Count": count})
                 
                 fig_team = px.line(
                     pd.DataFrame(team_coverage), x="Date", y="Count", color="Team",

@@ -116,7 +116,7 @@ def show_time_machine(rosters_dir, jsons_dir, weather_path, emps):
             def color_diff(val):
                 return 'background-color: rgba(255, 165, 0, 0.2); font-weight: bold' if "🔄" in str(val) else ''
             
-            st.dataframe(pd.DataFrame(l_data).style.applymap(color_diff), hide_index=True)
+            st.dataframe(pd.DataFrame(l_data).style.map(color_diff), hide_index=True)
         
         st.divider()
         if st.button("⏪ RESTORE SELECTED VERSION", type="primary", width="stretch"):
