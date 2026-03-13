@@ -1,7 +1,7 @@
 # Core Application
 streamlit
 pandas
-ortools==9.12.4544
+ortools
 python-dotenv
 requests
 pydantic>=2.0.0
