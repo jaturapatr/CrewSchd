@@ -10,6 +10,7 @@ plotly
 
 # AI Intelligence
 google-genai
+google-generativeai
 
 # Development & Testing
 rich
