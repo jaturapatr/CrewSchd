@@ -65,8 +65,8 @@ def translate_rule_to_json(user_input: str, api_key: str, current_rules_json: st
         into the '3-Shapes' algebraic format for OR-Tools.
 
         SHAPE 1: aggregator (Limits & Minimums)
-        - Handles: 'Max 40 hours', 'Min 2 staff', 'Exactly 5 days'.
-        - Keys: target_timeframe (daily/weekly/working_days), scope (individual/collective), operator (<=, >=, ==), value (int), penalty (optional int).
+        - Handles: 'Max 40 hours', 'Min 2 staff', 'Exactly 5 days', 'No weekends'.
+        - Keys: target_timeframe (daily/weekly/working_days), scope (individual/collective), operator (<=, >=, ==), value (int), penalty (optional int), target_days (optional array of names e.g. ["Saturday", "Sunday"]), target_block (optional time string e.g. "20:00").
 
         SHAPE 2: rolling_window (Fatigue & Patterns)
         - Handles: 'No 3 nights in a row', 'Max 2 heavy shifts in 3 days'.

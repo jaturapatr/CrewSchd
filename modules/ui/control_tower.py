@@ -167,6 +167,93 @@ def show_control_tower(target_date, rosters_dir, jsons_dir, emps_ctx, branch_ctx
                 if os.path.exists(report_path):
                     with open(report_path, 'r', encoding='utf-8') as f:
                         st.download_button(f"📥 Download {team_name} Report", f.read(), f"roster_{team_name}.html", "text/html", key=f"dl_{team_name}", width="stretch")
+        
+        # --- 4.5 DISRUPTION MANAGEMENT: AUTO-HEALER ---
+        st.divider()
+        st.write("### 🚑 Disruption Management (Auto-Healer)")
+        st.caption("Instantly find replacements for sudden call-outs without scrambling the rest of the schedule.")
+        
+        c_ah1, c_ah2 = st.columns(2)
+        with c_ah1:
+            ah_date = st.selectbox("Call-out Date", options=all_dates)
+        
+        # Safely get staff who are actually working on that date
+        working_staff_names = []
+        if ah_date in roster.get("assignments", {}):
+            for eid, blocks_assigned in roster["assignments"][ah_date].items():
+                if blocks_assigned and eid in emps["employees"]:
+                    working_staff_names.append(emps["employees"][eid]["name"])
+                    
+        with c_ah2:
+            if not working_staff_names:
+                st.info("No staff assigned on this date.")
+                ah_staff = None
+            else:
+                ah_staff = st.selectbox("Staff Member", options=working_staff_names)
+        
+        if ah_staff:
+            if st.button("🔍 Find Replacements", type="primary"):
+                from roster_engine import run_auto_healer
+                # Get EID
+                ah_eid = next(eid for eid, ed in emps["employees"].items() if ed["name"] == ah_staff)
+                with st.spinner("Engine is evaluating all available staff against hard constraints..."):
+                    candidates = run_auto_healer(ah_date, ah_eid, branch, team, roster)
+                    
+                if not candidates:
+                    st.error("❌ No mathematically feasible replacements found. (Hard constraints block everyone).")
+                else:
+                    st.session_state["ah_candidates"] = candidates
+                    st.session_state["ah_context"] = {"date": ah_date, "sick_eid": ah_eid, "sick_name": ah_staff}
+                    st.rerun()
+                
+        if "ah_candidates" in st.session_state:
+            st.success(f"✅ Found {len(st.session_state['ah_candidates'])} legal options.")
+            for idx, cand in enumerate(st.session_state["ah_candidates"][:3]): # Show top 3
+                with st.container(border=True):
+                    col1, col2 = st.columns([3, 1])
+                    with col1:
+                        st.markdown(f"**Option {idx+1}: {cand['name']}**")
+                        st.caption(f"Impact Score: {int(cand['score']):,} pts")
+                    with col2:
+                        if st.button("Apply & Heal", key=f"apply_heal_{idx}"):
+                            # 1. Add sick leave to weather.json
+                            wp = os.path.join(jsons_dir, 'weather.json')
+                            with open(wp, 'r', encoding='utf-8') as f: w_data = json.load(f)
+                            w_data.setdefault("daily_overrides", []).append({
+                                "type": "block_employee_availability",
+                                "employee": st.session_state["ah_context"]["sick_eid"],
+                                "date": st.session_state["ah_context"]["date"],
+                                "reason": "Emergency Auto-Heal (Sick)"
+                            })
+                            with open(wp, 'w', encoding='utf-8') as f: json.dump(w_data, f, indent=2)
+                            
+                            # 2. Mutate and save a new roster to lock the change permanently
+                            new_roster = json.loads(json.dumps(roster)) # Deep copy
+                            sick_eid = st.session_state["ah_context"]["sick_eid"]
+                            target_date = st.session_state["ah_context"]["date"]
+                            cand_eid = cand["eid"]
+                            
+                            blocks_to_move = new_roster["assignments"][target_date].pop(sick_eid, [])
+                            if cand_eid not in new_roster["assignments"][target_date]:
+                                new_roster["assignments"][target_date][cand_eid] = []
+                            new_roster["assignments"][target_date][cand_eid].extend(blocks_to_move)
+                            new_roster["assignments"][target_date][cand_eid] = sorted(list(set(new_roster["assignments"][target_date][cand_eid])))
+                            
+                            import time
+                            ts = int(time.time())
+                            new_roster["metadata"]["timestamp"] = ts
+                            new_roster["metadata"]["generated_at"] = date.today().isoformat()
+                            
+                            save_path = os.path.join(rosters_dir, f'roster_{new_roster["metadata"]["start_date"]}_{ts}.json')
+                            with open(save_path, 'w', encoding='utf-8') as f: json.dump(new_roster, f, indent=2)
+                            
+                            # Cleanup state
+                            del st.session_state["ah_candidates"]
+                            del st.session_state["ah_context"]
+                            
+                            st.success("✅ Roster Auto-Healed!")
+                            st.rerun()
+
     else:
         st.warning("No roster found.")
         # Load emps even if no roster, for the leave grid below

@@ -8,7 +8,11 @@ def apply_universal_rules(model, schedule, employee_ids, days, blocks, rules_jso
     """
     The Universal Translator.
     """
-    print(f"📐 UNIVERSAL MATH: Processing {len(rules_json)} rules...")
+    # Safely print without unicode for terminal compatibility
+    try:
+        print(f"📐 UNIVERSAL MATH: Processing {len(rules_json)} rules...")
+    except UnicodeEncodeError:
+        print(f"[UNIVERSAL MATH] Processing {len(rules_json)} rules...")
     total_penalties = []
     
     for rule in rules_json:
@@ -34,32 +38,55 @@ def apply_aggregator(model, schedule, employee_ids, days, blocks, rule):
     scope = rule.get("scope", "individual")
     penalty = rule.get("penalty", None) # If None, it's a Hard Constraint
     
+    target_days_names = rule.get("target_days", None) # e.g., ["Saturday", "Sunday"]
+    target_block = rule.get("target_block", None) # e.g., "20:00"
+    
     penalties = []
 
     if scope == "individual":
         for eid in target_group:
             if timeframe == "weekly":
-                vars_to_sum = [schedule[(eid, d, b)] for d in days for b in blocks]
-                _handle_constraint(model, vars_to_sum, op, val, penalty, penalties, f"{eid}_weekly")
+                vars_to_sum = []
+                for d in days:
+                    if target_days_names and d.strftime('%A') not in target_days_names: continue
+                    for b in blocks:
+                        if target_block and b != target_block: continue
+                        vars_to_sum.append(schedule[(eid, d, b)])
+                if vars_to_sum:
+                    _handle_constraint(model, vars_to_sum, op, val, penalty, penalties, f"{eid}_weekly")
             elif timeframe == "daily":
                 t_date = rule.get("target_date")
                 for d in days:
                     if t_date and d.isoformat() != t_date: continue
-                    vars_to_sum = [schedule[(eid, d, b)] for b in blocks]
-                    _handle_constraint(model, vars_to_sum, op, val, penalty, penalties, f"{eid}_{d.isoformat()}")
+                    if target_days_names and d.strftime('%A') not in target_days_names: continue
+                    
+                    vars_to_sum = []
+                    for b in blocks:
+                        if target_block and b != target_block: continue
+                        vars_to_sum.append(schedule[(eid, d, b)])
+                    if vars_to_sum:
+                        _handle_constraint(model, vars_to_sum, op, val, penalty, penalties, f"{eid}_{d.isoformat()}")
             elif timeframe == "working_days":
                 # Special logic for counting days worked vs blocks
                 daily_vars = []
                 for d in days:
+                    if target_days_names and d.strftime('%A') not in target_days_names: continue
                     is_working = model.NewBoolVar(f'{eid}_working_{d.isoformat()}_{rule.get("rule_name")}')
-                    model.AddMaxEquality(is_working, [schedule[(eid, d, b)] for b in blocks])
-                    daily_vars.append(is_working)
-                _handle_constraint(model, daily_vars, op, val, penalty, penalties, f"{eid}_wdays")
+                    blocks_to_check = [schedule[(eid, d, b)] for b in blocks if (not target_block or b == target_block)]
+                    if blocks_to_check:
+                        model.AddMaxEquality(is_working, blocks_to_check)
+                        daily_vars.append(is_working)
+                if daily_vars:
+                    _handle_constraint(model, daily_vars, op, val, penalty, penalties, f"{eid}_wdays")
     
     elif scope == "collective":
         # Headcount logic
         for d in days:
-            for b in blocks:
+            if target_days_names and d.strftime('%A') not in target_days_names: continue
+            
+            blocks_to_iterate = [target_block] if target_block else blocks
+            for b in blocks_to_iterate:
+                if b not in blocks: continue # Safety check
                 vars_to_sum = [schedule[(eid, d, b)] for eid in target_group]
                 _handle_constraint(model, vars_to_sum, op, val, penalty, penalties, f"coll_{d.isoformat()}_{b}")
 
@@ -116,10 +143,29 @@ def _handle_constraint(model, vars_list, operator, value, penalty, penalty_list,
         elif operator == ">=": model.Add(sum(vars_list) >= value)
         elif operator == "==": model.Add(sum(vars_list) == value)
     else:
-        # Create a slack variable for the penalty
-        shortage_or_excess = model.NewIntVar(0, 100, f'slack_{name}')
-        if operator == ">=":
-            model.Add(sum(vars_list) >= value - shortage_or_excess)
-        elif operator == "<=":
-            model.Add(sum(vars_list) <= value + shortage_or_excess)
-        penalty_list.append(shortage_or_excess * penalty)
+        if operator == "==":
+            if penalty < 0:
+                # FIX 2 (Reward Case): Soft Equality Reward (e.g., "Reward exactly 2 blocks")
+                is_equal = model.NewBoolVar(f'is_eq_{name}')
+                model.Add(sum(vars_list) == value).OnlyEnforceIf(is_equal)
+                # The solver will try to set is_equal to 1 to collect the negative penalty (reward).
+                penalty_list.append(is_equal * penalty)
+            else:
+                # Soft Equality Penalty (e.g., "Must be exactly 2 blocks, else penalty")
+                shortage = model.NewIntVar(0, 100, f'shortage_{name}')
+                excess = model.NewIntVar(0, 100, f'excess_{name}')
+                model.Add(sum(vars_list) == value - shortage + excess)
+                penalty_list.append((shortage + excess) * penalty)
+        else:
+            # FIX 1: Infinite Slack Paradox
+            if penalty < 0:
+                print(f"⚠️ WARNING: Ignored negative penalty ({penalty}) on inequality rule '{name}'. This prevents infinite profit loops.")
+                return
+
+            # Create a slack variable for the penalty
+            shortage_or_excess = model.NewIntVar(0, 100, f'slack_{name}')
+            if operator == ">=":
+                model.Add(sum(vars_list) >= value - shortage_or_excess)
+            elif operator == "<=":
+                model.Add(sum(vars_list) <= value + shortage_or_excess)
+            penalty_list.append(shortage_or_excess * penalty)

@@ -3,7 +3,7 @@
     {
       "id": "wellness_mode",
       "template_name": "🌿 Staff Wellness Mode",
-      "description": "Prioritizes staff rest by limiting weekly hours and increasing fatigue penalties.",
+      "description": "What it does: Prioritizes staff rest by strictly limiting weekly hours.\nHow it works: Applies a soft cap on the maximum number of blocks a staff member can work per week, overriding standard limits to enforce lighter, healthier workloads.\nWhy it's useful: Prevents burnout during slow periods and promotes a better work-life balance for the team.",
       "editable_params": [
         {"key": "value", "label": "Max Blocks/Week", "default": 10, "min": 4, "max": 21},
         {"key": "penalty", "label": "Penalty Strength", "default": 15000, "min": 1000, "max": 100000}
@@ -21,7 +21,7 @@
     {
       "id": "peak_hustle",
       "template_name": "🚀 Peak Season Hustle",
-      "description": "Encourages overtime shifts to handle surge demand.",
+      "description": "What it does: Encourages maximum capacity and overtime shifts to handle surge demand.\nHow it works: Provides a mathematical reward (negative penalty) to the engine every time it successfully schedules a 12-hour (3 block) overtime shift, aggressively pulling the system toward maximum resource utilization.\nWhy it's useful: Essential during holiday rushes or major promotional events when you need every available hour from your staff.",
       "editable_params": [
         {"key": "penalty", "label": "OT Incentive (Negative)", "default": -5000, "min": -20000, "max": 0}
       ],
@@ -33,6 +33,155 @@
           "target_timeframe": "daily",
           "operator": "==",
           "value": 3
+        }
+      ]
+    },
+    {
+      "id": "graceful_clopen",
+      "template_name": "🌉 Flexible 'Clopen' Tolerance",
+      "description": "What it does: Allows 'Close-then-Open' shifts during severe staff shortages to prevent branch closure.\nHow it works: Converts strict rest laws into soft guidelines. The engine will schedule a back-to-back late night/early morning shift if it's the absolutely only way to keep the branch operational, but applies a massive penalty to discourage casual use.\nWhy it's useful: Acts as an emergency safety valve. It prevents the math engine from crashing when a sudden sick leave makes a legal roster impossible.",
+      "editable_params": [
+        {"key": "penalty", "label": "Clopen Penalty", "default": 50000, "min": 10000, "max": 200000}
+      ],
+      "rules_template": [
+        {
+          "rule_name": "Soft: Midnight Rest Mandate",
+          "math_shape": "implication",
+          "if_condition": { "block": "20:00" },
+          "then_enforce": { "blocks": ["00:00", "04:00", "08:00"], "must_equal": 0, "offset_days": 1 }
+        },
+        {
+          "rule_name": "Soft: Late Evening Rest Mandate",
+          "math_shape": "implication",
+          "if_condition": { "block": "16:00" },
+          "then_enforce": { "blocks": ["00:00", "04:00"], "must_equal": 0, "offset_days": 1 }
+        }
+      ]
+    },
+    {
+      "id": "buddy_system",
+      "template_name": "🤝 Night Shift Buddy System",
+      "description": "What it does: Improves staff safety by ensuring no one works the late night shift completely alone.\nHow it works: Specifically targets the 20:00 block and enforces a minimum headcount of 2. If the engine is forced to schedule only one person due to constraints, it applies a heavy safety penalty.\nWhy it's useful: Crucial for security and operational compliance during high-risk graveyard hours.",
+      "editable_params": [
+        {"key": "penalty", "label": "Solo Night Penalty", "default": 10000, "min": 5000, "max": 50000}
+      ],
+      "rules_template": [
+        {
+          "rule_name": "Safety: Min 2 at Night (20:00)",
+          "math_shape": "aggregator",
+          "scope": "collective",
+          "target_timeframe": "daily",
+          "target_block": "20:00",
+          "operator": ">=",
+          "value": 2
+        }
+      ]
+    },
+    {
+      "id": "fair_weekend",
+      "template_name": "⚖️ Fair Weekend Policy",
+      "description": "What it does: Prevents staff burnout by guaranteeing at least one weekend day off.\nHow it works: Scans only Saturdays and Sundays. If the engine schedules the same employee to work on both days, it triggers a significant fairness penalty, forcing the engine to distribute weekend loads evenly.\nWhy it's useful: Keeps morale high by ensuring that weekend work is equitably shared across the entire team.",
+      "editable_params": [
+        {"key": "penalty", "label": "Weekend Burnout Penalty", "default": 20000, "min": 5000, "max": 100000}
+      ],
+      "rules_template": [
+        {
+          "rule_name": "Fairness: Max 1 Weekend Day",
+          "math_shape": "aggregator",
+          "scope": "individual",
+          "target_timeframe": "working_days",
+          "target_days": ["Saturday", "Sunday"],
+          "operator": "<=",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "id": "part_time_cap",
+      "template_name": "🎓 Part-Time / Student Cap",
+      "description": "What it does: Strictly limits the maximum weekly hours for a specific team to comply with part-time contracts.\nHow it works: Uses an Individual Aggregator on a Weekly timeframe to restrict total working blocks.\nWhy it's useful: You can apply this directly to a 'Junior' or 'Student' team to ensure you never accidentally overschedule them beyond their legal or contractual limits.",
+      "editable_params": [
+        {"key": "value", "label": "Max Blocks/Week", "default": 5, "min": 1, "max": 10},
+        {"key": "penalty", "label": "Violation Penalty", "default": 30000, "min": 5000, "max": 100000}
+      ],
+      "rules_template": [
+        {
+          "rule_name": "Contract: Part-Time Cap",
+          "math_shape": "aggregator",
+          "scope": "individual",
+          "target_timeframe": "weekly",
+          "operator": "<="
+        }
+      ]
+    },
+    {
+      "id": "minimum_earnings",
+      "template_name": "💸 Minimum Earnings Guarantee",
+      "description": "What it does: Ensures that every staff member is assigned a minimum baseline of hours per week.\nHow it works: Uses an Individual Aggregator to mandate a minimum number of weekly blocks, applying a heavy penalty if the engine 'starves' an employee of shifts.\nWhy it's useful: Protects staff livelihoods during slow periods, reducing turnover by guaranteeing a baseline income.",
+      "editable_params": [
+        {"key": "value", "label": "Min Blocks/Week", "default": 6, "min": 2, "max": 15},
+        {"key": "penalty", "label": "Starvation Penalty", "default": 20000, "min": 5000, "max": 100000}
+      ],
+      "rules_template": [
+        {
+          "rule_name": "Equity: Minimum Shifts",
+          "math_shape": "aggregator",
+          "scope": "individual",
+          "target_timeframe": "weekly",
+          "operator": ">="
+        }
+      ]
+    },
+    {
+      "id": "graveyard_cost",
+      "template_name": "🌙 Graveyard Cost Control",
+      "description": "What it does: Prevents overstaffing during the lowest-revenue night shifts.\nHow it works: Uses a Collective Aggregator specifically targeting the 00:00 block, capping the total number of staff allowed to work during that time.\nWhy it's useful: Even if the engine wants to assign more people to balance out weekly hours, this rule acts as a strict ceiling to protect your profit margins during quiet hours.",
+      "editable_params": [
+        {"key": "value", "label": "Max Staff at Midnight", "default": 1, "min": 0, "max": 5},
+        {"key": "penalty", "label": "Overstaff Penalty", "default": 25000, "min": 5000, "max": 100000}
+      ],
+      "rules_template": [
+        {
+          "rule_name": "Finance: Midnight Cap",
+          "math_shape": "aggregator",
+          "scope": "collective",
+          "target_timeframe": "daily",
+          "target_block": "00:00",
+          "operator": "<="
+        }
+      ]
+    },
+    {
+      "id": "sprint_limiter",
+      "template_name": "🛡️ Sprint Limiter (Fatigue Guard)",
+      "description": "What it does: Prevents short, intense bursts of overwork (e.g., three 12-hour days in a row).\nHow it works: Slides a 3-day mathematical window across the schedule and strictly caps the total number of blocks an individual can work within that brief period.\nWhy it's useful: While 'Wellness Mode' looks at the whole week, this rule prevents the dangerous short-term sprints that are a leading cause of immediate burnout and operational mistakes.",
+      "editable_params": [
+        {"key": "limit", "label": "Max Blocks in 3 Days", "default": 6, "min": 3, "max": 9},
+        {"key": "penalty", "label": "Fatigue Penalty", "default": 30000, "min": 5000, "max": 100000}
+      ],
+      "rules_template": [
+        {
+          "rule_name": "Safety: Sprint Limiter",
+          "math_shape": "rolling_window",
+          "window_size": 3
+        }
+      ]
+    },
+    {
+      "id": "four_day_week",
+      "template_name": "🏖️ The 4-Day Work Week",
+      "description": "What it does: An experimental scheduling mode that condenses the work week.\nHow it works: Uses the 'working_days' timeframe to force the engine to give everyone at least 3 full days off per week, often relying on 8h or 12h shifts on their working days to meet demand.\nWhy it's useful: A highly attractive modern perk for staff retention, proving that the business can operate efficiently while giving employees massive blocks of uninterrupted time off.",
+      "editable_params": [
+        {"key": "value", "label": "Max Work Days/Week", "default": 4, "min": 3, "max": 6},
+        {"key": "penalty", "label": "Extra Day Penalty", "default": 40000, "min": 10000, "max": 100000}
+      ],
+      "rules_template": [
+        {
+          "rule_name": "Modern: 4-Day Week",
+          "math_shape": "aggregator",
+          "scope": "individual",
+          "target_timeframe": "working_days",
+          "operator": "<="
         }
       ]
     }

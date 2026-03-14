@@ -3,20 +3,27 @@ import os
 import json
 import pandas as pd
 from Translator import translate_rule_to_json
-
 def get_human_description(rule):
+    """Translates an OR-Tools JSON rule into plain English."""
     shape = rule.get("math_shape")
     val = rule.get("value")
+
+    target_days = rule.get("target_days", [])
+    days_str = f" on {', '.join(target_days)}" if target_days else ""
+    target_block = rule.get("target_block", "")
+    block_str = f" at {target_block}" if target_block else ""
+
     if shape == "aggregator":
         timeframe = rule.get("target_timeframe", "daily")
         scope = rule.get("scope", "individual")
+        op = rule.get("operator", "<=")
         if scope == "individual":
-            if timeframe == "weekly": return f"Max {val} blocks ({(val or 0)*4}h)/week."
-            if timeframe == "working_days": return f"Max {val} work days/week."
-            return f"Max {val} blocks/day."
+            if timeframe == "weekly": return f"Max {val} blocks ({(val or 0)*4}h)/week{days_str}{block_str}."
+            if timeframe == "working_days": return f"Limit to {val} work days/week{days_str}{block_str}."
+            return f"Max {val} blocks/day{days_str}{block_str}."
         else: # collective
             team = rule.get("target_team", "the team")
-            return f"Operational Floor: {team} must have at least {val} staff per 4h block."
+            return f"Operational Floor: {team} must have {op} {val} staff{days_str}{block_str}."
     elif shape == "rolling_window":
         return f"Pattern Guard: Max {rule.get('limit')} blocks in {rule.get('window_size')} days."
     elif shape == "implication":
@@ -121,7 +128,7 @@ def show_context_mgmt(jsons_root, selected_branch, api_key):
                     c1, c2 = st.columns([2, 1])
                     with c1:
                         st.write(f"**{temp['template_name']}**")
-                        st.caption(temp['description'])
+                        st.markdown(f"<span style='color: #a0aec0; font-size: 0.9em;'>{temp['description'].replace(chr(10), '<br/>')}</span>", unsafe_allow_html=True)
                     with c2:
                         target_team = st.selectbox(f"Team", options=available_teams, key=f"tsel_{tid}")
                         team_strategies = branch_ctx["active_strategies"].get(target_team, {})

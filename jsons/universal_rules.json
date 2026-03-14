@@ -40,15 +40,6 @@
       "penalty": -10000
     },
     {
-      "rule_name": "Policy: Prefer 8h over 4h",
-      "math_shape": "aggregator",
-      "scope": "individual",
-      "target_timeframe": "daily",
-      "operator": ">=",
-      "value": 2,
-      "penalty": 5000
-    },
-    {
       "rule_name": "Policy: OT Surcharge (12h)",
       "math_shape": "aggregator",
       "scope": "individual",
