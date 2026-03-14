@@ -1,0 +1,40 @@
+{
+  "templates": [
+    {
+      "id": "wellness_mode",
+      "template_name": "🌿 Staff Wellness Mode",
+      "description": "Prioritizes staff rest by limiting weekly hours and increasing fatigue penalties.",
+      "editable_params": [
+        {"key": "value", "label": "Max Blocks/Week", "default": 10, "min": 4, "max": 21},
+        {"key": "penalty", "label": "Penalty Strength", "default": 15000, "min": 1000, "max": 100000}
+      ],
+      "rules_template": [
+        {
+          "rule_name": "Wellness: Max Hours",
+          "math_shape": "aggregator",
+          "scope": "individual",
+          "target_timeframe": "weekly",
+          "operator": "<="
+        }
+      ]
+    },
+    {
+      "id": "peak_hustle",
+      "template_name": "🚀 Peak Season Hustle",
+      "description": "Encourages overtime shifts to handle surge demand.",
+      "editable_params": [
+        {"key": "penalty", "label": "OT Incentive (Negative)", "default": -5000, "min": -20000, "max": 0}
+      ],
+      "rules_template": [
+        {
+          "rule_name": "Hustle: OT Incentive",
+          "math_shape": "aggregator",
+          "scope": "individual",
+          "target_timeframe": "daily",
+          "operator": "==",
+          "value": 3
+        }
+      ]
+    }
+  ]
+}

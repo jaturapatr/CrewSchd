@@ -1,0 +1,77 @@
+{
+  "laws": [
+    {
+      "rule_name": "Thai Law: Max 84h Week",
+      "math_shape": "aggregator",
+      "scope": "individual",
+      "target_timeframe": "weekly",
+      "operator": "<=",
+      "value": 21
+    },
+    {
+      "rule_name": "Thai Law: Mandatory Day Off",
+      "math_shape": "aggregator",
+      "scope": "individual",
+      "target_timeframe": "working_days",
+      "operator": "<=",
+      "value": 6
+    }
+  ],
+  "corp_compliance": [
+    {
+      "rule_name": "Rest Rule: Midnight Shift Mandate",
+      "math_shape": "implication",
+      "if_condition": { "block": "20:00" },
+      "then_enforce": { "blocks": ["00:00", "04:00", "08:00"], "must_equal": 0, "offset_days": 1 }
+    },
+    {
+      "rule_name": "Rest Rule: Late Evening Mandate",
+      "math_shape": "implication",
+      "if_condition": { "block": "16:00" },
+      "then_enforce": { "blocks": ["00:00", "04:00"], "must_equal": 0, "offset_days": 1 }
+    },
+    {
+      "rule_name": "Incentive: Reward Standard 8h Day",
+      "math_shape": "aggregator",
+      "scope": "individual",
+      "target_timeframe": "daily",
+      "operator": "==",
+      "value": 2,
+      "penalty": -10000
+    },
+    {
+      "rule_name": "Policy: Prefer 8h over 4h",
+      "math_shape": "aggregator",
+      "scope": "individual",
+      "target_timeframe": "daily",
+      "operator": ">=",
+      "value": 2,
+      "penalty": 5000
+    },
+    {
+      "rule_name": "Policy: OT Surcharge (12h)",
+      "math_shape": "aggregator",
+      "scope": "individual",
+      "target_timeframe": "daily",
+      "operator": "<=",
+      "value": 2,
+      "penalty": 50000
+    },
+    {
+      "rule_name": "Strategy: Workload Balancing",
+      "math_shape": "aggregator",
+      "scope": "individual",
+      "target_timeframe": "weekly",
+      "operator": "<=",
+      "value": 12,
+      "penalty": 2000
+    },
+    {
+      "rule_name": "Strategy: Fatigue Prevention",
+      "math_shape": "rolling_window",
+      "window_size": 3,
+      "limit": 6,
+      "penalty": 10000
+    }
+  ]
+}

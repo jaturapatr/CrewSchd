@@ -28,5 +28,25 @@
       "date": "2026-03-14",
       "reason": "Vacation"
     }
+  },
+  {
+    "deleted_at": "2026-03-14T18:11:00.232990",
+    "admin": "admin",
+    "leave_detail": {
+      "type": "block_employee_availability",
+      "employee": "Joy",
+      "date": "2026-03-18",
+      "reason": "Vacation"
+    }
+  },
+  {
+    "deleted_at": "2026-03-14T18:11:00.232990",
+    "admin": "admin",
+    "leave_detail": {
+      "type": "block_employee_availability",
+      "employee": "Ken",
+      "date": "2026-03-18",
+      "reason": "Vacation"
+    }
   }
 ]

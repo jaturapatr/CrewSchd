@@ -14,78 +14,6 @@
     },
     {
       "type": "block_employee_availability",
-      "employee": "Sine",
-      "date": "2026-03-14",
-      "reason": "accident"
-    },
-    {
-      "type": "block_employee_availability",
-      "employee": "Sine",
-      "date": "2026-03-15",
-      "reason": "accident"
-    },
-    {
-      "type": "block_employee_availability",
-      "employee": "Sine",
-      "date": "2026-03-16",
-      "reason": "accident"
-    },
-    {
-      "type": "block_employee_availability",
-      "employee": "Sine",
-      "date": "2026-03-17",
-      "reason": "accident"
-    },
-    {
-      "type": "block_employee_availability",
-      "employee": "Sine",
-      "date": "2026-03-18",
-      "reason": "accident"
-    },
-    {
-      "type": "block_employee_availability",
-      "employee": "Sine",
-      "date": "2026-03-19",
-      "reason": "accident"
-    },
-    {
-      "type": "block_employee_availability",
-      "employee": "Sine",
-      "date": "2026-03-20",
-      "reason": "accident"
-    },
-    {
-      "type": "block_employee_availability",
-      "employee": "Sine",
-      "date": "2026-03-21",
-      "reason": "accident"
-    },
-    {
-      "type": "block_employee_availability",
-      "employee": "Sine",
-      "date": "2026-03-22",
-      "reason": "accident"
-    },
-    {
-      "type": "block_employee_availability",
-      "employee": "Sine",
-      "date": "2026-03-23",
-      "reason": "accident"
-    },
-    {
-      "type": "block_employee_availability",
-      "employee": "Sine",
-      "date": "2026-03-24",
-      "reason": "accident"
-    },
-    {
-      "type": "block_employee_availability",
-      "employee": "Sine",
-      "date": "2026-03-25",
-      "reason": "accident"
-    },
-    {
-      "type": "block_employee_availability",
       "employee": "Dona",
       "date": "2026-03-12",
       "reason": "sick"
@@ -100,24 +28,84 @@
       "type": "block_employee_availability",
       "employee": "Dona",
       "date": "2026-03-14",
-      "reason": "sick"
+      "reason": "Sick"
     },
     {
       "type": "block_employee_availability",
       "employee": "Dona",
       "date": "2026-03-15",
-      "reason": "sick"
+      "reason": "Sick"
     },
     {
       "type": "block_employee_availability",
-      "employee": "Joy",
+      "employee": "Sine",
+      "date": "2026-03-14",
+      "reason": "Vacation"
+    },
+    {
+      "type": "block_employee_availability",
+      "employee": "Sine",
+      "date": "2026-03-15",
+      "reason": "Vacation"
+    },
+    {
+      "type": "block_employee_availability",
+      "employee": "Sine",
+      "date": "2026-03-16",
+      "reason": "Vacation"
+    },
+    {
+      "type": "block_employee_availability",
+      "employee": "Sine",
+      "date": "2026-03-17",
+      "reason": "Vacation"
+    },
+    {
+      "type": "block_employee_availability",
+      "employee": "Sine",
       "date": "2026-03-18",
       "reason": "Vacation"
     },
     {
       "type": "block_employee_availability",
-      "employee": "Ken",
-      "date": "2026-03-18",
+      "employee": "Sine",
+      "date": "2026-03-19",
+      "reason": "Vacation"
+    },
+    {
+      "type": "block_employee_availability",
+      "employee": "Sine",
+      "date": "2026-03-20",
+      "reason": "Vacation"
+    },
+    {
+      "type": "block_employee_availability",
+      "employee": "Sine",
+      "date": "2026-03-21",
+      "reason": "Vacation"
+    },
+    {
+      "type": "block_employee_availability",
+      "employee": "Sine",
+      "date": "2026-03-22",
+      "reason": "Vacation"
+    },
+    {
+      "type": "block_employee_availability",
+      "employee": "Sine",
+      "date": "2026-03-23",
+      "reason": "Vacation"
+    },
+    {
+      "type": "block_employee_availability",
+      "employee": "Sine",
+      "date": "2026-03-24",
+      "reason": "Vacation"
+    },
+    {
+      "type": "block_employee_availability",
+      "employee": "Sine",
+      "date": "2026-03-25",
       "reason": "Vacation"
     },
     {
@@ -125,18 +113,6 @@
       "employee": "Max",
       "date": "2026-03-18",
       "reason": "Vacation"
-    },
-    {
-      "type": "block_employee_availability",
-      "employee": "Ken",
-      "date": "2026-03-18",
-      "reason": null
-    },
-    {
-      "type": "block_employee_availability",
-      "employee": "Max",
-      "date": "2026-03-18",
-      "reason": null
     }
   ]
 }

@@ -49,7 +49,7 @@ def get_roster_explanation(roster_data, employee_data, weather_data):
     prompt = f"Acting as a Senior Operations Engineer, provide a 2-sentence 'Mathematical Strategy Summary' for this week's 4h-block roster starting {start_date} handling {num_leaves} absences."
     try:
         response = client.models.generate_content(
-            model='gemini-2.0-flash',
+            model='gemini-2.5-flash',
             contents=prompt
         )
         return response.text.strip()
@@ -71,6 +71,13 @@ def export_perfect_roster(branch="Main Office", team="Cashier"):
         with open(weather_path, 'r') as f: weather = json.load(f)
     else:
         weather = {"daily_overrides": []}
+
+    # Prepare lookup for Leave distinction
+    overrides = roster.get("metadata", {}).get("weather_snapshot", [])
+    leave_lookup = {} # { (eid_or_name, date): reason }
+    for r in overrides:
+        if r.get("type") == "block_employee_availability":
+            leave_lookup[(str(r.get("employee")).strip().lower(), r.get("date"))] = r.get("reason", "Leave")
 
     strategy_summary = get_roster_explanation(roster, employees, weather)
 
@@ -119,7 +126,9 @@ def export_perfect_roster(branch="Main Office", team="Cashier"):
             .staff-row:hover {{ background-color: #f0f7ff !important; }}
             .emp-name {{ text-align: left !important; font-weight: bold; border-left: 4px solid #ddd; }}
             .time-box {{ font-family: 'Courier New', monospace; font-weight: bold; color: #2980b9; margin-bottom: 2px; }}
-            .off {{ color: #bdc3c7; font-weight: normal; font-size: 11px; background-color: #fafafa; }}
+            .off {{ color: #e67e22; font-weight: bold; font-style: italic; background-color: #fafafa; opacity: 0.8; }}
+            .leave {{ color: #e74c3c; font-weight: bold; font-style: italic; background-color: #f0f7ff; }}
+            .sick {{ color: #e74c3c; font-weight: bold; font-style: italic; background-color: #fff5f5; }}
             .summary-section {{ border-top: 2px dashed #eee; padding-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }}
             .strategy-box {{ grid-column: span 2; background: #f0f7ff; padding: 20px; border-radius: 8px; font-style: italic; border-left: 5px solid var(--accent); }}
             .card {{ background: #f9fbfd; border: 1px solid #e1e4e8; border-radius: 8px; padding: 20px; }}
@@ -145,7 +154,12 @@ def export_perfect_roster(branch="Main Office", team="Cashier"):
         if emp['team'] != current_team_header:
             current_team_header = emp['team']
             html += f"<tr class='team-row'><td colspan='{len(sorted_dates) + 1}' style='text-align: left; padding-left: 20px;'>📦 TEAM: {current_team_header.upper()}</td></tr>"
+        
         html += f"<tr class='staff-row'><td class='emp-name'>{emp['name']} <small style='font-weight:normal; opacity:0.6'>({eid})</small></td>"
+        
+        ename_lower = emp['name'].strip().lower()
+        eid_lower = eid.strip().lower()
+
         for d_str in sorted_dates:
             blocks_assigned = roster["assignments"][d_str].get(eid, [])
             if blocks_assigned:
@@ -153,7 +167,15 @@ def export_perfect_roster(branch="Main Office", team="Cashier"):
                 blocks_html = "".join([f"<div class='time-box'>{BLOCK_TIMES.get(b, b)}</div>" for b in sorted_blocks])
                 html += f"<td>{blocks_html}</td>"
             else:
-                html += "<td class='off'>— OFF —</td>"
+                # Check for leave/sick
+                reason = leave_lookup.get((eid_lower, d_str)) or leave_lookup.get((ename_lower, d_str))
+                if reason:
+                    is_sick = any(w in str(reason).lower() for w in ["sick", "medical", "doctor"])
+                    cls = "sick" if is_sick else "leave"
+                    label = "🤒 SICK" if is_sick else "🌴 LEAVE"
+                    html += f"<td class='{cls}'>{label}</td>"
+                else:
+                    html += "<td class='off'>💤 DAY-OFF</td>"
         html += "</tr>"
 
     html += f"""

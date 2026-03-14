@@ -1,7 +1,26 @@
 {
   "company_name": "CrewSchd",
-  "strict_day_coverage": {
-    "Cashier": 1,
-    "Service": 1
-  }
+  "active_strategies": {},
+  "location_context": [
+    {
+      "rule_name": "Min Staff per Block: Cashier",
+      "math_shape": "aggregator",
+      "scope": "collective",
+      "target_team": "Cashier",
+      "target_timeframe": "daily",
+      "operator": ">=",
+      "value": 1,
+      "priority_label": "Headcount"
+    },
+    {
+      "rule_name": "Min Staff per Block: Service",
+      "math_shape": "aggregator",
+      "scope": "collective",
+      "target_team": "Service",
+      "target_timeframe": "daily",
+      "operator": ">=",
+      "value": 2,
+      "priority_label": "Headcount"
+    }
+  ]
 }
