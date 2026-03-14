@@ -29,6 +29,13 @@ def apply_business_policies(model, schedule, days, blocks, policies_dict, employ
             model.Add(daily_sum != 3).OnlyEnforceIf(is_12h_day.Not())
             total_penalty_score += (is_12h_day * 50000)
 
+            # --- 8h Day Reward (Option 2: The Preferred Standard) ---
+            # We give the engine a 10,000 pt 'profit' for every 8h shift assigned
+            is_8h_day = model.NewBoolVar(f'{emp_id}_8h_day_{d.isoformat()}')
+            model.Add(daily_sum == 2).OnlyEnforceIf(is_8h_day)
+            model.Add(daily_sum != 2).OnlyEnforceIf(is_8h_day.Not())
+            total_penalty_score -= (is_8h_day * 10000)
+
     # POLICY 2: Maximize Weekend Firepower
     rule_weekend = opt_targets.get("maximize_weekend_firepower", {})
     if rule_weekend:
