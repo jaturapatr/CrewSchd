@@ -60,7 +60,8 @@ def generate_roster(start_date=None, branch="Main Office", team="Cashier"):
         start_date = date.today()
     
     days = [start_date + timedelta(days=i) for i in range(7)]
-    shifts = ["Morning", "Evening", "Night", "12hDay", "12hNight"]
+    # 6 blocks representing a 24-hour day (4 hours each)
+    blocks = ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]
     employee_ids = list(employee_dict.get("employees", {}).keys())
     
     if not employee_ids:
@@ -73,31 +74,60 @@ def generate_roster(start_date=None, branch="Main Office", team="Cashier"):
         emp_data = employee_dict["employees"][e_id]
         can_work_nights = emp_data.get("can_work_nights", True)
         for d in days:
-            for s in shifts:
-                var = model.NewBoolVar(f's_{e_id}_{d.isoformat()}_{s}')
-                schedule[(e_id, d, s)] = var
+            for b in blocks:
+                var = model.NewBoolVar(f's_{e_id}_{d.isoformat()}_{b}')
+                schedule[(e_id, d, b)] = var
                 
-                # HARD CONSTRAINT: can_work_nights flag
-                if not can_work_nights and ("Night" in s or "12hNight" in s):
+                # Adaptation of can_work_nights for 4h blocks
+                if not can_work_nights and b in ["00:00", "04:00", "20:00"]:
                     model.Add(var == 0)
+
+    # ---------------------------------------------------------
+    # MICRO-SHIFT: The "One Start Per Day" Gap Detector (Split-Shift Blocker)
+    # ---------------------------------------------------------
+    print("🧱 Building the Split-Shift Blocker...")
+    for emp_id in employee_ids:
+        for d in days:
+            daily_starts = []
+            for i in range(len(blocks)):
+                current_block = schedule[(emp_id, d, blocks[i])]
+                is_start = model.NewBoolVar(f'{emp_id}_start_{d.isoformat()}_{blocks[i]}')
+                
+                if i == 0:
+                    model.Add(is_start == current_block)
+                else:
+                    prev_block = schedule[(emp_id, d, blocks[i-1])]
+                    # Math trick to detect a 0 -> 1 transition
+                    model.Add(is_start >= current_block - prev_block)
+                    model.Add(is_start <= current_block)
+                    model.Add(is_start <= 1 - prev_block)
+                daily_starts.append(is_start)
+            
+            # THE BRICK WALL: You can only clock in ONCE per day.
+            model.Add(sum(daily_starts) <= 1)
+            
+            # THAI LABOR LAW (Max 12 hours including OT): 
+            # You can work a maximum of THREE 4-hour blocks per day.
+            model.Add(sum(schedule[(emp_id, d, b)] for b in blocks) <= 3)
                 
     # 4. APPLY MODULAR CONSTRAINTS
     # --- Persistence & Stability ---
     rosters_dir = os.path.join(base_dir, 'Rosters', branch, team)
-    anchor_penalties = apply_persistence_locks(model, schedule, employee_ids, days, shifts, rosters_dir)
-    apply_history_constraints(model, schedule, employee_ids, start_date, shifts, rosters_dir)
+    # Update these functions to use 'blocks' terminology if they depend on shift names
+    anchor_penalties = apply_persistence_locks(model, schedule, employee_ids, days, blocks, rosters_dir)
+    apply_history_constraints(model, schedule, employee_ids, start_date, blocks, rosters_dir)
     
     # --- Hard Laws ---
-    apply_thai_labor_laws(model, schedule, employee_ids, days, shifts)
+    apply_thai_labor_laws(model, schedule, employee_ids, days, blocks)
     
     # --- Business Logic ---
-    context_penalties = apply_business_context(model, schedule, days, shifts, context_dict, employee_dict)
+    context_penalties = apply_business_context(model, schedule, days, blocks, context_dict, employee_dict)
     
     # --- Dynamic AI Overrides ---
-    apply_daily_weather(model, schedule, weather_dict, employee_dict, days, shifts)
+    apply_daily_weather(model, schedule, weather_dict, employee_dict, days, blocks)
     
     # --- Soft Policies ---
-    policy_penalty = apply_business_policies(model, schedule, days, shifts, policies_dict, employee_dict)
+    policy_penalty = apply_business_policies(model, schedule, days, blocks, policies_dict, employee_dict)
     
     # 5. MASTER OBJECTIVE (Minimize Penalties)
     all_penalties = anchor_penalties + context_penalties + [policy_penalty]
@@ -127,7 +157,8 @@ def generate_roster(start_date=None, branch="Main Office", team="Cashier"):
                 "timestamp": timestamp,
                 "start_date": start_date.isoformat(),
                 "status": "OPTIMAL" if status == cp_model.OPTIMAL else "FEASIBLE",
-                "weather_snapshot": weather_dict.get("daily_overrides", [])
+                "weather_snapshot": weather_dict.get("daily_overrides", []),
+                "type": "block_based" # Flag for UI/Exporter
             },
             "assignments": {}
         }
@@ -135,10 +166,12 @@ def generate_roster(start_date=None, branch="Main Office", team="Cashier"):
         for d in days:
             d_str = d.isoformat()
             roster_output["assignments"][d_str] = {}
-            for s in shifts:
+            for b in blocks:
                 for e in employee_ids:
-                    if solver.Value(schedule[(e, d, s)]) == 1:
-                        roster_output["assignments"][d_str][e] = s
+                    if solver.Value(schedule[(e, d, b)]) == 1:
+                        if e not in roster_output["assignments"][d_str]:
+                            roster_output["assignments"][d_str][e] = []
+                        roster_output["assignments"][d_str][e].append(b)
             
         # Save JSON for Persistence & Exporter
         rosters_dir = os.path.join(base_dir, 'Rosters', branch, team)

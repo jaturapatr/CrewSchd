@@ -7,7 +7,7 @@ import plotly.express as px
 
 def show_analytics(rosters_dir, jsons_dir, employees):
     st.title("📊 Staff Resource Analytics")
-    st.subheader("Deep insights into team health and workload distribution.")
+    st.subheader("Deep insights into team health and workload distribution (4h Blocks).")
 
     files = glob.glob(os.path.join(rosters_dir, 'roster_*.json'))
     if not files:
@@ -19,22 +19,24 @@ def show_analytics(rosters_dir, jsons_dir, employees):
 
     # --- ADVANCED ANALYTICS ENGINE ---
     stats = []
-    shift_h = {"Morning": 9, "Evening": 9, "Night": 9, "12hDay": 12, "12hNight": 12}
     all_dates = sorted(roster["assignments"].keys())
     
     for eid, e_data in employees["employees"].items():
         total_h = 0
-        nights = 0
-        twelve_h_shifts = 0
+        night_blocks = 0
+        full_days = 0 # 8h days
         consecutive_days = 0
         max_consecutive = 0
         
         for d in all_dates:
-            s_name = roster["assignments"][d].get(eid)
-            if s_name and s_name != "—":
-                total_h += shift_h.get(s_name, 0)
-                if "Night" in s_name: nights += 1
-                if "12h" in s_name: twelve_h_shifts += 1
+            assigned_blocks = roster["assignments"][d].get(eid, [])
+            if assigned_blocks:
+                h = len(assigned_blocks) * 4
+                total_h += h
+                if any(b in ["00:00", "04:00", "20:00"] for b in assigned_blocks):
+                    night_blocks += 1
+                if h >= 8:
+                    full_days += 1
                 consecutive_days += 1
                 max_consecutive = max(max_consecutive, consecutive_days)
             else:
@@ -44,8 +46,8 @@ def show_analytics(rosters_dir, jsons_dir, employees):
             "Name": e_data["name"], 
             "Team": e_data["team"], 
             "Weekly Hours": total_h, 
-            "Night Shifts": nights,
-            "12h Intensity": twelve_h_shifts,
+            "Night Blocks": night_blocks,
+            "8h Days": full_days,
             "Max Streak": max_consecutive
         })
     
@@ -53,13 +55,13 @@ def show_analytics(rosters_dir, jsons_dir, employees):
     
     # 1. FAIRNESS CALCULATION
     workload_variance = df["Weekly Hours"].std()
-    fairness_score = max(0, 100 - (workload_variance * 2))
+    fairness_score = max(0, 100 - (workload_variance * 2)) if not pd.isna(workload_variance) else 100
     
     m1, m2, m3, m4 = st.columns(4)
     m1.metric("Workforce", len(employees["employees"]))
-    m2.metric("Fairness Index", f"{int(fairness_score)}%", help="How evenly work is distributed. Higher is better.")
-    m3.metric("Avg Fatigue", f"{round(df['Max Streak'].mean(), 1)} days", help="Average consecutive working days.")
-    m4.metric("System Fragility", f"{df['12h Intensity'].max()} max", help="Highest concentration of 12h shifts on one person.")
+    m2.metric("Fairness Index", f"{int(fairness_score)}%", help="How evenly work is distributed.")
+    m3.metric("Avg Fatigue", f"{round(df['Max Streak'].mean(), 1)} days", help="Avg consecutive days worked.")
+    m4.metric("System Load", f"{df['8h Days'].sum()} total", help="Total number of 8h shifts assigned.")
 
     st.divider()
     
@@ -76,11 +78,11 @@ def show_analytics(rosters_dir, jsons_dir, employees):
         st.plotly_chart(fig_fatigue, width="stretch")
 
     with c2:
-        st.write("### 🧬 Shift Complexity Mix")
-        intensity_df = df.groupby("Team")[["12h Intensity", "Weekly Hours"]].sum().reset_index()
+        st.write("### 🧬 Full-Day Distribution (8h)")
+        intensity_df = df.groupby("Team")[["8h Days", "Weekly Hours"]].sum().reset_index()
         fig_intensity = px.pie(
-            intensity_df, values='12h Intensity', names='Team',
-            hole=.4, title="12h Shift Distribution",
+            intensity_df, values='8h Days', names='Team',
+            hole=.4, title="8h Shift Distribution",
             color_discrete_sequence=px.colors.sequential.RdBu
         )
         st.plotly_chart(fig_intensity, width="stretch")
@@ -101,19 +103,19 @@ def show_analytics(rosters_dir, jsons_dir, employees):
             st.success("No dangerous work streaks detected.")
 
     with w2:
-        st.write("#### 💎 Critical Dependency (12h Concentration)")
-        risk_dependency = df[df["12h Intensity"] >= 4].sort_values("12h Intensity", ascending=False)
+        st.write("#### 💎 Workload Concentration")
+        risk_dependency = df[df["Weekly Hours"] >= 40].sort_values("Weekly Hours", ascending=False)
         if not risk_dependency.empty:
-            st.error("High Dependency Alert: These staff carry the majority of 12h shifts.")
-            st.dataframe(risk_dependency[["Name", "12h Intensity", "Weekly Hours"]], hide_index=True)
+            st.error("High Workload Alert: Staff nearing or exceeding 40h.")
+            st.dataframe(risk_dependency[["Name", "Weekly Hours", "Team"]], hide_index=True)
         else:
-            st.success("12h shifts are well-balanced across the team.")
+            st.success("Workloads are well-balanced.")
 
     st.divider()
     c3, c4 = st.columns([2, 1])
     with c3:
         st.write("### 🔥 Total Weekly Workload")
-        df["Status"] = df["Weekly Hours"].apply(lambda x: "🚨 High Strain" if x > 60 else "✅ Normal")
+        df["Status"] = df["Weekly Hours"].apply(lambda x: "🚨 High Strain" if x > 48 else "✅ Normal")
         fig_workload = px.bar(
             df, x="Weekly Hours", y="Name", orientation='h', color="Status",
             color_discrete_map={"🚨 High Strain": "#e74c3c", "✅ Normal": "#2ecc71"},

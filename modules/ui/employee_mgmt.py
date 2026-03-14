@@ -27,62 +27,7 @@ def show_employee_mgmt(jsons_root, selected_branch, selected_team):
 
     st.divider()
 
-    # 2. BRANCH LEVEL
-    st.write(f"### 📍 Branch Operations: {selected_branch}")
-    
-    # Branch-specific Business Context
-    branch_ctx_path = os.path.join(jsons_root, selected_branch, 'business_context.json')
-    if os.path.exists(branch_ctx_path):
-        with open(branch_ctx_path, 'r') as f: branch_ctx = json.load(f)
-    else:
-        branch_ctx = {"strict_day_coverage": {}}
-
-    with st.expander("⚖️ Edit Branch Coverage Rules"):
-        st.caption("Define minimum headcount per team for this branch.")
-        # Simple JSON editor for coverage
-        new_coverage_json = st.text_area("Coverage Config (JSON)", value=json.dumps(branch_ctx.get("strict_day_coverage", {}), indent=2))
-        if st.button("Save Branch Rules"):
-            try:
-                branch_ctx["strict_day_coverage"] = json.loads(new_coverage_json)
-                with open(branch_ctx_path, 'w') as f: json.dump(branch_ctx, f, indent=2)
-                st.success(f"Rules for {selected_branch} updated!")
-                st.rerun()
-            except Exception as e:
-                st.error(f"Invalid JSON: {e}")
-
-    st.write("#### 🛠️ Global Branch Tools")
-    available_branches = sorted([d for d in os.listdir(jsons_root) if os.path.isdir(os.path.join(jsons_root, d))])
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        new_b = st.text_input("New Branch Name", placeholder="e.g. Phuket")
-        if st.button("➕ Create Branch", width="stretch"):
-            if new_b:
-                branch_dir = os.path.join(jsons_root, new_b)
-                os.makedirs(branch_dir, exist_ok=True)
-                # Initialize with default context
-                with open(os.path.join(branch_dir, 'business_context.json'), 'w') as f:
-                    json.dump({"strict_day_coverage": {}}, f)
-                st.success(f"Branch '{new_b}' created!")
-                st.rerun()
-    with col2:
-        branch_to_del = st.selectbox("Delete Branch", options=["-- Select Branch --"] + available_branches)
-        if st.button("🗑️ Delete Selected Branch", type="secondary", width="stretch"):
-            if branch_to_del != "-- Select Branch --":
-                json_branch_path = os.path.join(jsons_root, branch_to_del)
-                if os.path.exists(json_branch_path): shutil.rmtree(json_branch_path)
-                roster_branch_path = os.path.join(base_dir, 'Rosters', branch_to_del)
-                if os.path.exists(roster_branch_path): shutil.rmtree(roster_branch_path)
-                html_pattern = os.path.join(base_dir, f'Perfect_Roster_View_{branch_to_del.replace(" ", "_")}_*.html')
-                for f in glob.glob(html_pattern):
-                    try: os.remove(f)
-                    except: pass
-                st.warning(f"Branch '{branch_to_del}' and all associated files deleted!")
-                st.rerun()
-
-    st.divider()
-
-    # 3. TEAM LEVEL
+    # 2. TEAM LEVEL
     st.write(f"### 🏘️ Team Operations (in {selected_branch})")
     branch_path = os.path.join(jsons_root, selected_branch)
     available_teams = sorted([d for d in os.listdir(branch_path) if os.path.isdir(os.path.join(branch_path, d))])
@@ -115,7 +60,7 @@ def show_employee_mgmt(jsons_root, selected_branch, selected_team):
 
     st.divider()
 
-    # 4. EMPLOYEE LEVEL
+    # 3. EMPLOYEE LEVEL
     st.write(f"### 👤 Staff Directory ({selected_branch} -> {selected_team})")
     jsons_dir = os.path.join(jsons_root, selected_branch, selected_team)
     employee_path = os.path.join(jsons_dir, 'employee.json')
