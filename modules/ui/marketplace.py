@@ -20,7 +20,7 @@ def show_marketplace(rosters_dir, jsons_dir, employees):
         st.warning("No staff found.")
         return
         
-    current_eid = st.selectbox("Log in as:", options=list(emp_options.keys()), format_func=lambda x: f"{emp_options[x]} ({x})")
+    current_eid = st.selectbox("Log in as:", options=list(emp_options.keys()), format_func=lambda x: f"{emp_options[x]} ({x})", key="market_identity_sim")
     current_name = emp_options[current_eid]
 
     # Load Roster
@@ -141,7 +141,7 @@ def show_marketplace(rosters_dir, jsons_dir, employees):
                             branch = latest_roster["metadata"]["branch"]
                             team = latest_roster["metadata"]["team"]
                             
-                            is_valid, score = validate_roster(branch, team, proposed_roster)
+                            is_valid, violations = validate_roster(branch, team, proposed_roster)
                             
                         if is_valid:
                             st.success("✅ **Swap Approved!** The math engine confirmed this is legally compliant.")
@@ -161,4 +161,4 @@ def show_marketplace(rosters_dir, jsons_dir, employees):
                             
                             st.rerun()
                         else:
-                            st.error("❌ **Swap Rejected!** Accepting this shift would violate a hard constraint (e.g., maximum hours, rest mandate, or no-split-shift rule).")
+                            st.error(f"❌ **Swap Rejected!** Accepting this shift would violate organizational rules: {', '.join(violations)}")

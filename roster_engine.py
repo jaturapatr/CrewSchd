@@ -166,12 +166,11 @@ def generate_roster(start_date=None, branch="Main Office", team="Cashier", simul
             for var, name in rule_penalty_vars:
                 if solver.Value(var) > 0: violations.append(name)
             
-            # Remove duplicates from list
             unique_violations = sorted(list(set(violations)))
             is_legal = solver.ObjectiveValue() < 1000000
-            return is_legal, unique_violations
+            return is_legal, solver.ObjectiveValue(), unique_violations
         else:
-            return False, ["Mathematical Paradox"]
+            return False, None, ["Mathematical Paradox"]
             
     if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
         import time
@@ -222,11 +221,13 @@ def run_auto_healer(target_date_str, sick_eid, branch, team, base_roster):
             if e not in proposed["assignments"][target_date_str]: proposed["assignments"][target_date_str][e] = []
             proposed["assignments"][target_date_str][e].extend(blocks_to_fill)
             proposed["assignments"][target_date_str][e] = sorted(list(set(proposed["assignments"][target_date_str][e])))
-            is_valid, violations = generate_roster(start_date, branch, team, simulation_roster=proposed)
+            is_valid, score, violations = generate_roster(start_date, branch, team, simulation_roster=proposed)
             if is_valid:
-                candidates.append({"eid": e, "name": emps[e]["name"], "score": 0})
+                candidates.append({"eid": e, "name": emps[e]["name"], "score": score})
     finally:
         sys.stdout = old_stdout
+    
+    candidates.sort(key=lambda x: x["score"])
     return candidates
 
 def validate_roster(branch, team, proposed_roster):
@@ -234,7 +235,7 @@ def validate_roster(branch, team, proposed_roster):
     old_stdout = sys.stdout
     sys.stdout = open(os.devnull, 'w')
     try:
-        is_valid, violations = generate_roster(start_date, branch, team, simulation_roster=proposed_roster)
+        is_valid, score, violations = generate_roster(start_date, branch, team, simulation_roster=proposed_roster)
         return is_valid, violations
     finally:
         sys.stdout = old_stdout

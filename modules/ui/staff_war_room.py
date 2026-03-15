@@ -99,7 +99,6 @@ def show_staff_war_room(jsons_root, base_dir):
     df = pd.DataFrame(master_staff)
 
     # --- 2. GLOBAL ALERT TICKER ---
-    # Create a quick ticker for immediate actionable intelligence
     high_strain = len(df[df["Weekly Hours"] > 48])
     high_fatigue = len(df[df["Max Streak"] >= 6])
     total_leaves = df["Overrides"].sum()
@@ -128,7 +127,6 @@ def show_staff_war_room(jsons_root, base_dir):
                     try:
                         client = genai.Client(api_key=api_key)
                         
-                        # Prepare data for AI
                         data_summary = {
                             "total_staff": len(df),
                             "branches": list(df["Branch"].unique()),
@@ -170,7 +168,6 @@ def show_staff_war_room(jsons_root, base_dir):
 
     # --- 4. DYNAMIC VIEWS ---
     
-    # LENS 1: GLOBAL HQ
     if view_lens == "🌍 Global HQ":
         m1, m2, m3, m4 = st.columns(4)
         m1.metric("Total Workforce", len(df))
@@ -201,7 +198,6 @@ def show_staff_war_room(jsons_root, base_dir):
             fig_health.update_traces(textposition='inside', textinfo='percent+label')
             st.plotly_chart(fig_health, width="stretch", config={'displayModeBar': False})
 
-    # LENS 2: BRANCH HUB
     elif view_lens == "📍 Branch Hub":
         loc_sel = st.selectbox("🎯 Target Branch", df["Branch"].unique())
         loc_df = df[df["Branch"] == loc_sel]
@@ -235,7 +231,6 @@ def show_staff_war_room(jsons_root, base_dir):
         else:
             st.info(f"Generate rosters for {loc_sel} teams to unlock deep workload analytics.")
 
-    # LENS 3: TEAM METRICS
     elif view_lens == "👥 Team Metrics":
         c1, c2 = st.columns(2)
         with c1: team_branch_sel = st.selectbox("📍 Target Branch", df["Branch"].unique(), key="tb_sel")
@@ -251,7 +246,7 @@ def show_staff_war_room(jsons_root, base_dir):
             fairness_score = max(0, 100 - (workload_variance * 2)) if not pd.isna(workload_variance) else 100
             
             tm1, tm2, tm3, tm4 = st.columns(4)
-            tm1.metric("Equity Score", f"{int(fairness_score)}/100", help="100 means everyone works exact same hours")
+            tm1.metric("Equity Score", f"{int(fairness_score)}/100")
             tm2.metric("System Load", f"{active_team_df['8h Days'].sum()} 8h-Days")
             tm3.metric("Avg Fatigue", f"{round(active_team_df['Max Streak'].mean(), 1)} days")
             tm4.metric("Night Intensity", f"{active_team_df['Night Blocks'].sum()} Blocks")
@@ -276,7 +271,6 @@ def show_staff_war_room(jsons_root, base_dir):
                 )
                 st.plotly_chart(fig_fatigue, width="stretch", config={'displayModeBar': False})
 
-    # LENS 4: INDIVIDUAL PROFILER
     elif view_lens == "👤 Staff Profiler":
         c1, c2, c3 = st.columns(3)
         with c1: i_branch = st.selectbox("📍 Target Branch", df["Branch"].unique(), key="i_b")
@@ -305,7 +299,6 @@ def show_staff_war_room(jsons_root, base_dir):
         with col_radar:
             if staff_record["Has Roster"] == 1:
                 st.write("### Health Signature")
-                # Normalize values for a 0-10 radar chart
                 norm_hours = min((staff_record['Weekly Hours'] / 48) * 10, 10)
                 norm_fatigue = min((staff_record['Max Streak'] / 6) * 10, 10)
                 norm_nights = min((staff_record['Night Blocks'] / 5) * 10, 10)

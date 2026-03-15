@@ -30,20 +30,19 @@ STANDARD_RULES = [
 def show_employee_mgmt(jsons_root, selected_branch, selected_team):
     st.title("⚙️ Enterprise Management")
     base_dir = os.path.dirname(jsons_root)
-    api_key = st.session_state.get("api_key") # Assuming it's in session state or we get it via get_api_key()
     
     # 1. COMPANY LEVEL
     st.write("### 🏢 Company Settings")
     biz_ctx_path = os.path.join(jsons_root, 'business_context.json')
     if os.path.exists(biz_ctx_path):
-        with open(biz_ctx_path, 'r') as f: biz_ctx_data = json.load(f)
+        with open(biz_ctx_path, 'r', encoding='utf-8') as f: biz_ctx_data = json.load(f)
     else:
         biz_ctx_data = {"company_name": "CrewSchd"}
 
     c_name = st.text_input("Company Name", value=biz_ctx_data.get("company_name", "CrewSchd"))
     if st.button("Update Company Name"):
         biz_ctx_data["company_name"] = c_name
-        with open(biz_ctx_path, 'w') as f: json.dump(biz_ctx_data, f, indent=2)
+        with open(biz_ctx_path, 'w', encoding='utf-8') as f: json.dump(biz_ctx_data, f, indent=2)
         st.success("Company name updated!")
         st.rerun()
 
@@ -61,8 +60,8 @@ def show_employee_mgmt(jsons_root, selected_branch, selected_team):
             if new_t:
                 new_team_dir = os.path.join(branch_path, new_t)
                 os.makedirs(new_team_dir, exist_ok=True)
-                with open(os.path.join(new_team_dir, 'employee.json'), 'w') as f: json.dump({"employees": {}}, f)
-                with open(os.path.join(new_team_dir, 'company_policies.json'), 'w') as f: json.dump({"optimization_targets": {}}, f)
+                with open(os.path.join(new_team_dir, 'employee.json'), 'w', encoding='utf-8') as f: json.dump({"employees": {}}, f)
+                with open(os.path.join(new_team_dir, 'company_policies.json'), 'w', encoding='utf-8') as f: json.dump({"optimization_targets": {}}, f)
                 st.success(f"Team '{new_t}' created!")
                 st.rerun()
     with col4:
@@ -73,7 +72,7 @@ def show_employee_mgmt(jsons_root, selected_branch, selected_team):
                 if os.path.exists(json_team_path): shutil.rmtree(json_team_path)
                 roster_team_path = os.path.join(base_dir, 'Rosters', selected_branch, team_to_del)
                 if os.path.exists(roster_team_path): shutil.rmtree(roster_team_path)
-                st.warning(f"Team '{team_to_del}' and all associated files deleted!")
+                st.warning(f"Team '{team_to_del}' deleted!")
                 st.rerun()
 
     st.divider()
@@ -91,12 +90,11 @@ def show_employee_mgmt(jsons_root, selected_branch, selected_team):
                 os.makedirs(new_branch_dir, exist_ok=True)
                 default_context = {
                     "company_name": biz_ctx_data.get("company_name", "CrewSchd"),
-                    "strict_day_coverage": {},
-                    "dynamic_rules": STANDARD_RULES
+                    "location_context": []
                 }
-                with open(os.path.join(new_branch_dir, 'business_context.json'), 'w') as f:
+                with open(os.path.join(new_branch_dir, 'business_context.json'), 'w', encoding='utf-8') as f:
                     json.dump(default_context, f, indent=2)
-                st.success(f"Branch '{new_b}' created with standard rules!")
+                st.success(f"Branch '{new_b}' created!")
                 st.rerun()
     with c2:
         branch_to_del = st.selectbox("Delete Branch", options=["-- Select Branch --"] + available_branches)
@@ -116,13 +114,12 @@ def show_employee_mgmt(jsons_root, selected_branch, selected_team):
     employee_path = os.path.join(jsons_dir, 'employee.json')
     
     if not os.path.exists(employee_path):
-        with open(employee_path, 'w') as f: json.dump({"employees": {}}, f)
-    with open(employee_path, 'r') as f: data = json.load(f)
+        with open(employee_path, 'w', encoding='utf-8') as f: json.dump({"employees": {}}, f)
+    with open(employee_path, 'r', encoding='utf-8') as f: data = json.load(f)
     employees = data.get("employees", {})
 
-    st.caption("Admin: Manage staff and their special preferences (e.g., 'Only max 20h/week').")
+    st.caption("Admin: Manage staff quotas and preferences.")
     
-    # Prepare dataframe for editing
     rows = []
     for eid, edata in employees.items():
         rows.append({
@@ -155,7 +152,7 @@ def show_employee_mgmt(jsons_root, selected_branch, selected_team):
 
     if st.button("💾 SAVE STAFF & PREFERENCES", type="primary", width="stretch"):
         new_emps = {}
-        from security import get_api_key # Use centralized key retrieval
+        from security import get_api_key
         
         with st.spinner("Processing AI preferences..."):
             for _, row in edited_df.iterrows():
@@ -164,18 +161,12 @@ def show_employee_mgmt(jsons_root, selected_branch, selected_team):
                 pref_text = str(row.get("Preference", "")).strip()
                 
                 old_edata = employees.get(eid, {})
-                
-                # Logic: If preference text changed, re-translate
                 current_pref_json = old_edata.get("special_preference_json", None)
                 if pref_text and pref_text != old_edata.get("special_preference_text"):
-                    # Use AI to architect the rule
                     res = translate_rule_to_json(f"Rule for {eid}: {pref_text}", get_api_key(), "[]")
-                    if "error" not in res:
-                        current_pref_json = res
-                    else:
-                        st.error(f"Could not understand preference for {eid}: {res['error']}")
-                elif not pref_text:
-                    current_pref_json = None
+                    if "error" not in res: current_pref_json = res
+                    else: st.error(f"Could not understand preference for {eid}: {res['error']}")
+                elif not pref_text: current_pref_json = None
 
                 new_emps[eid] = {
                     "name": str(row["Name"]),
@@ -192,8 +183,8 @@ def show_employee_mgmt(jsons_root, selected_branch, selected_team):
             
             data["employees"] = new_emps
             data["last_updated"] = date.today().isoformat()
-            with open(employee_path, 'w') as f: json.dump(data, f, indent=2)
-            st.success("✅ Roster and individual preferences updated!")
+            with open(employee_path, 'w', encoding='utf-8') as f: json.dump(data, f, indent=2)
+            st.success("✅ Staff updated!")
             st.rerun()
 
     # --- 5. QUOTA TRACKING TABLE ---
@@ -208,10 +199,8 @@ def show_employee_mgmt(jsons_root, selected_branch, selected_team):
         with open(weather_path, 'r', encoding='utf-8') as f:
             weather = json.load(f)
             overrides = weather.get("daily_overrides", [])
-            
             norm_emps = {edata["name"].strip().lower(): eid for eid, edata in employees.items()}
             id_map = {eid.strip().lower(): eid for eid in employees.keys()}
-            
             for rule in overrides:
                 emp_ref = rule.get("employee")
                 if not emp_ref: continue
@@ -230,14 +219,7 @@ def show_employee_mgmt(jsons_root, selected_branch, selected_team):
         s_used = e_data.get("sick_used", 0) + weather_sick.get(eid, 0)
         s_rem = e_data.get("sick_quota", 30) - s_used
         status = "✅ OK" if (v_rem >= 0 and s_rem >= 0) else "🚨 EXCEEDED"
-        
-        quota_data.append({
-            "Staff": e_data["name"],
-            "Vacation Used": v_used,
-            "Vacation Rem.": v_rem,
-            "Sick Used": s_used,
-            "Sick Rem.": s_rem,
-            "Status": status
-        })
+        quota_data.append({"Staff": e_data["name"], "Vacation Used": v_used, "Vacation Rem.": v_rem, "Sick Used": s_used, "Sick Rem.": s_rem, "Status": status})
+    
     if quota_data:
         st.dataframe(pd.DataFrame(quota_data).style.apply(lambda x: ["color: red; font-weight: bold" if v == "🚨 EXCEEDED" else "" for v in x], axis=1), hide_index=True, width="stretch")

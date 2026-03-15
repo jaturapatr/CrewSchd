@@ -101,6 +101,17 @@ def main():
         </style>
     """, unsafe_allow_html=True)
 
+    # --- CONTEXT CHANGE TRACKING ---
+    if "last_branch" not in st.session_state: st.session_state["last_branch"] = selected_branch
+    if "last_team" not in st.session_state: st.session_state["last_team"] = selected_team
+    
+    if st.session_state["last_branch"] != selected_branch or st.session_state["last_team"] != selected_team:
+        # Clear diagnostic/simulation states
+        for key in ["ah_candidates", "ah_context", "insp_results"]:
+            if key in st.session_state: del st.session_state[key]
+        st.session_state["last_branch"] = selected_branch
+        st.session_state["last_team"] = selected_team
+
     # Route to pages
     if menu == "🚜 Control Tower":
         show_control_tower(target_date, rosters_dir, jsons_dir, json.dumps(employees), json.dumps(branch_ctx_data), get_api_key(), base_dir, selected_branch, selected_team, jsons_root)
