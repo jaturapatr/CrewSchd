@@ -1,0 +1,14 @@
+{
+  "offers": [
+    {
+      "id": "9ce794b3-fc42-4438-9cb5-2cfd4be9da10",
+      "offering_eid": "BSN-S02",
+      "date": "2026-03-15",
+      "blocks": [
+        "00:00",
+        "04:00"
+      ],
+      "timestamp": "2026-03-15"
+    }
+  ]
+}

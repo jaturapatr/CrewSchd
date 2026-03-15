@@ -15,11 +15,13 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'modules'))
 from modules.persistence import apply_history_constraints, apply_persistence_locks
 from modules.universal_engine import apply_universal_rules
 
-def generate_roster(start_date=None, branch="Main Office", team="Cashier", auto_heal_params=None):
-    if not auto_heal_params:
+def generate_roster(start_date=None, branch="Main Office", team="Cashier", simulation_roster=None):
+    if not simulation_roster:
         print(f"🛠️ Initializing UNIVERSAL Engine [{branch} -> {team}]...")
+    
     model = cp_model.CpModel()
     base_dir = os.path.dirname(__file__)
+    diag_mode = simulation_roster is not None
     
     # 1. LOAD DATA
     try:
@@ -41,8 +43,8 @@ def generate_roster(start_date=None, branch="Main Office", team="Cashier", auto_
         with open(os.path.join(team_jsons, 'weather.json'), 'r', encoding='utf-8') as f: weather_dict = json.load(f)
             
     except Exception as e:
-        if not auto_heal_params: print(f"❌ ERROR loading data: {e}")
-        return
+        if not simulation_roster: print(f"❌ ERROR loading data: {e}")
+        return False, []
 
     # 2. SETUP HORIZON
     if start_date is None: start_date = date.today()
@@ -50,7 +52,7 @@ def generate_roster(start_date=None, branch="Main Office", team="Cashier", auto_
     blocks = ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]
     employee_ids = list(employee_dict.get("employees", {}).keys())
     
-    if not employee_ids: return "NO_EMPLOYEES"
+    if not employee_ids: return False, []
 
     # 3. CREATE BOOLEAN GRID
     schedule = {}
@@ -67,18 +69,14 @@ def generate_roster(start_date=None, branch="Main Office", team="Cashier", auto_
     # 4. CONSOLIDATE DYNAMIC RULES
     # ---------------------------------------------------------
     master_dynamic_rules = []
-    
-    # - Global Mandates
     master_dynamic_rules.extend(laws)
     master_dynamic_rules.extend(corp_compliance)
     
-    # - Location Context (Already includes filtered headcount for this team)
     for rule in loc_context:
         target_team = rule.get("target_team")
         if target_team and target_team != team: continue
         master_dynamic_rules.append(rule)
 
-    # - Team Weather (Prefs + Overrides)
     for eid, edata in employee_dict.get("employees", {}).items():
         pref_rule = edata.get("special_preference_json")
         if pref_rule and isinstance(pref_rule, dict):
@@ -92,8 +90,6 @@ def generate_roster(start_date=None, branch="Main Office", team="Cashier", auto_
             emp_ref = str(rule.get("employee")).strip().lower()
             eid = emp_ref if emp_ref in employee_dict["employees"] else name_to_id.get(emp_ref)
             if eid:
-                # If we are healing, and this override is for the candidate on the target date, we still enforce it. 
-                # (Meaning they can't be chosen if they are already marked sick).
                 master_dynamic_rules.append({
                     "rule_name": f"Weather: {rule.get('employee')}",
                     "math_shape": "aggregator", "scope": "individual", "target_group": [eid],
@@ -102,6 +98,7 @@ def generate_roster(start_date=None, branch="Main Office", team="Cashier", auto_
                 })
 
     # 5. CORE RIGIDITY
+    structural_violations = []
     for emp_id in employee_ids:
         for d in days:
             daily_starts = []
@@ -115,66 +112,66 @@ def generate_roster(start_date=None, branch="Main Office", team="Cashier", auto_
                     model.Add(is_start <= curr_b)
                     model.Add(is_start <= 1 - prev_b)
                 daily_starts.append(is_start)
-            model.Add(sum(daily_starts) <= 1)
-            model.Add(sum(schedule[(emp_id, d, b)] for b in blocks) <= 3)
+            
+            if not simulation_roster:
+                model.Add(sum(daily_starts) <= 1)
+                model.Add(sum(schedule[(emp_id, d, b)] for b in blocks) <= 3)
+            else:
+                is_split = model.NewBoolVar(f'structural_split_{emp_id}_{d.isoformat()}')
+                model.Add(sum(daily_starts) > 1).OnlyEnforceIf(is_split)
+                model.Add(sum(daily_starts) <= 1).OnlyEnforceIf(is_split.Not())
+                structural_violations.append((is_split, "Law: No Split Shifts"))
+                
+                is_over_12 = model.NewBoolVar(f'structural_over12_{emp_id}_{d.isoformat()}')
+                model.Add(sum(schedule[(emp_id, d, b)] for b in blocks) > 3).OnlyEnforceIf(is_over_12)
+                model.Add(sum(schedule[(emp_id, d, b)] for b in blocks) <= 3).OnlyEnforceIf(is_over_12.Not())
+                structural_violations.append((is_over_12, "Law: Max 12h (Inc. OT)"))
 
     # 6. APPLY UNIVERSAL ENGINE & PERSISTENCE
-    all_penalties = apply_universal_rules(model, schedule, employee_ids, days, blocks, master_dynamic_rules)
+    rule_penalty_vars = apply_universal_rules(model, schedule, employee_ids, days, blocks, master_dynamic_rules, diagnostic_mode=diag_mode)
     
     rosters_dir = os.path.join(base_dir, 'Rosters', branch, team)
     
-    if not auto_heal_params:
+    if not simulation_roster:
         anchor_penalties = apply_persistence_locks(model, schedule, employee_ids, days, blocks, rosters_dir)
         apply_history_constraints(model, schedule, employee_ids, start_date, blocks, rosters_dir)
+        # Sum of variables for actual solver
+        total_obj = [v[0] for v in rule_penalty_vars] + anchor_penalties
     else:
-        # Auto-Heal Mode: Lock the entire schedule to the base_roster, EXCEPT for the sick person and candidate on the target date.
-        anchor_penalties = []
-        target_date_str = auto_heal_params["target_date"]
-        sick_eid = auto_heal_params["sick_eid"]
-        candidate_eid = auto_heal_params["candidate_eid"]
-        blocks_to_fill = auto_heal_params["blocks_to_fill"]
-        base_roster = auto_heal_params["base_roster"]
-        
+        # Simulation: Lock everything
         for d in days:
             d_str = d.isoformat()
-            assigned_today = base_roster.get("assignments", {}).get(d_str, {})
+            assigned_today = simulation_roster.get("assignments", {}).get(d_str, {})
             for e in employee_ids:
-                if d_str == target_date_str and e == sick_eid:
-                    # Sick employee works 0 blocks today
-                    for b in blocks:
-                        model.Add(schedule[(e, d, b)] == 0)
-                elif d_str == target_date_str and e == candidate_eid:
-                    # Candidate takes their original blocks PLUS the sick blocks
-                    orig_blocks = assigned_today.get(e, [])
-                    for b in blocks:
-                        if b in orig_blocks or b in blocks_to_fill:
-                            model.Add(schedule[(e, d, b)] == 1)
-                        else:
-                            model.Add(schedule[(e, d, b)] == 0)
-                else:
-                    # Everyone else (or candidate on other days) is locked strictly to base_roster
-                    orig_blocks = assigned_today.get(e, [])
-                    for b in blocks:
-                        if b in orig_blocks:
-                            model.Add(schedule[(e, d, b)] == 1)
-                        else:
-                            model.Add(schedule[(e, d, b)] == 0)
-    
+                blks = assigned_today.get(e, [])
+                for b in blocks:
+                    model.Add(schedule[(e, d, b)] == (1 if b in blks else 0))
+        # Simulation objective: weight structural laws huge, others normal
+        total_obj = [v[0] * 1000000 for v in structural_violations] + [v[0] for v in rule_penalty_vars]
+
     # 7. MINIMIZE
-    model.Minimize(sum(all_penalties + anchor_penalties))
+    model.Minimize(sum(total_obj))
         
-    if not auto_heal_params:
-        print(f"🚀 Solving Universal Matrix...")
+    if not simulation_roster: print(f"🚀 Solving Universal Matrix...")
     solver = cp_model.CpSolver()
     solver.parameters.max_time_in_seconds = 10.0
     status = solver.Solve(model)
     
     # 8. PROCESS RESULTS
-    if auto_heal_params:
+    if simulation_roster:
         if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
-            return solver.ObjectiveValue()
+            violations = []
+            for var, name in structural_violations:
+                if solver.Value(var) > 0: violations.append(name)
+            for var, name in rule_penalty_vars:
+                if solver.Value(var) > 0: violations.append(name)
+            
+            # Remove duplicates from list
+            unique_violations = sorted(list(set(violations)))
+            is_legal = solver.ObjectiveValue() < 1000000
+            return is_legal, unique_violations
         else:
-            return None
+            return False, ["Mathematical Paradox"]
             
     if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
         import time
@@ -202,52 +199,45 @@ def generate_roster(start_date=None, branch="Main Office", team="Cashier", auto_
         file_name = f'roster_{start_date.isoformat()}_{timestamp}.json'
         save_path = os.path.join(rosters_dir, file_name)
         with open(save_path, 'w') as f: json.dump(roster_output, f, indent=2)
-        if not auto_heal_params: print(f"✅ Roster SUCCESS: {save_path}")
+        if not diag_mode: print(f"✅ Roster SUCCESS: {save_path}")
         return "FEASIBLE"
     else:
         return "INFEASIBLE"
 
 def run_auto_healer(target_date_str, sick_eid, branch, team, base_roster):
-    """
-    Evaluates all other employees to find the best replacement for a called-out shift.
-    """
     blocks_to_fill = base_roster.get("assignments", {}).get(target_date_str, {}).get(sick_eid, [])
-    if not blocks_to_fill:
-        return [] # They weren't working anyway
-        
+    if not blocks_to_fill: return [] 
     start_date = date.fromisoformat(base_roster["metadata"]["start_date"])
-    
-    # Load employees
     base_dir = os.path.dirname(__file__)
     emp_path = os.path.join(base_dir, 'jsons', branch, team, 'employee.json')
-    with open(emp_path, 'r', encoding='utf-8') as f:
-        emps = json.load(f)["employees"]
-        
+    with open(emp_path, 'r', encoding='utf-8') as f: emps = json.load(f)["employees"]
     candidates = []
-    # Temporarily mute print statements during auto-heal loop
     old_stdout = sys.stdout
     sys.stdout = open(os.devnull, 'w')
-    
     try:
         for e in emps.keys():
             if e == sick_eid: continue
-            # Can they take it? Check by running engine
-            params = {
-                "target_date": target_date_str,
-                "sick_eid": sick_eid,
-                "candidate_eid": e,
-                "blocks_to_fill": blocks_to_fill,
-                "base_roster": base_roster
-            }
-            score = generate_roster(start_date, branch, team, auto_heal_params=params)
-            if score is not None:
-                candidates.append({"eid": e, "name": emps[e]["name"], "score": score})
+            proposed = json.loads(json.dumps(base_roster))
+            proposed["assignments"][target_date_str].pop(sick_eid, None)
+            if e not in proposed["assignments"][target_date_str]: proposed["assignments"][target_date_str][e] = []
+            proposed["assignments"][target_date_str][e].extend(blocks_to_fill)
+            proposed["assignments"][target_date_str][e] = sorted(list(set(proposed["assignments"][target_date_str][e])))
+            is_valid, violations = generate_roster(start_date, branch, team, simulation_roster=proposed)
+            if is_valid:
+                candidates.append({"eid": e, "name": emps[e]["name"], "score": 0})
     finally:
         sys.stdout = old_stdout
-            
-    # Sort by score (lowest penalty is best)
-    candidates.sort(key=lambda x: x["score"])
     return candidates
+
+def validate_roster(branch, team, proposed_roster):
+    start_date = date.fromisoformat(proposed_roster["metadata"]["start_date"])
+    old_stdout = sys.stdout
+    sys.stdout = open(os.devnull, 'w')
+    try:
+        is_valid, violations = generate_roster(start_date, branch, team, simulation_roster=proposed_roster)
+        return is_valid, violations
+    finally:
+        sys.stdout = old_stdout
 
 if __name__ == "__main__":
     import sys

@@ -19,7 +19,7 @@
       "target_team": "Service",
       "target_timeframe": "daily",
       "operator": ">=",
-      "value": 1,
+      "value": 2,
       "priority_label": "Headcount"
     }
   ]

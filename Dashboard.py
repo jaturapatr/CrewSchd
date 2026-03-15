@@ -22,6 +22,7 @@ from staff_war_room import show_staff_war_room
 from employee_mgmt import show_employee_mgmt
 from security import get_api_key, show_login_page
 from context_mgmt import show_context_mgmt
+from marketplace import show_marketplace
 
 def main():
     if "authenticated" not in st.session_state:
@@ -77,7 +78,7 @@ def main():
     with open(emp_path, 'r', encoding='utf-8') as f: employees = json.load(f)
 
     # Sidebar Navigation
-    nav_options = ["🚜 Control Tower", "🕰️ Time Machine"]
+    nav_options = ["🚜 Control Tower", "🤝 Shift Marketplace", "🕰️ Time Machine"]
     if st.session_state["user"] == "admin":
         nav_options.append("🛡️ Staff War Room")
         nav_options.append("📐 Context Management")
@@ -103,6 +104,8 @@ def main():
     # Route to pages
     if menu == "🚜 Control Tower":
         show_control_tower(target_date, rosters_dir, jsons_dir, json.dumps(employees), json.dumps(branch_ctx_data), get_api_key(), base_dir, selected_branch, selected_team, jsons_root)
+    elif menu == "🤝 Shift Marketplace":
+        show_marketplace(rosters_dir, jsons_dir, employees)
     elif menu == "🕰️ Time Machine":
         weather_path = os.path.join(jsons_dir, 'weather.json')
         show_time_machine(rosters_dir, jsons_dir, weather_path, employees)
